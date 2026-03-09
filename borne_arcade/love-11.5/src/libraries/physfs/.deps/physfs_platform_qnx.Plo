@@ -1,0 +1,5 @@
+libraries/physfs/physfs_platform_qnx.lo: \
+ libraries/physfs/physfs_platform_qnx.c /usr/include/stdc-predef.h \
+ libraries/physfs/physfs_platforms.h
+/usr/include/stdc-predef.h:
+libraries/physfs/physfs_platforms.h:

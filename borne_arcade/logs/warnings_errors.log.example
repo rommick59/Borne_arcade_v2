@@ -1,0 +1,9 @@
+[Puissance_X] Entree.java:20: warning: [deprecation] Integer(int) in Integer has been deprecated
+[Puissance_X] Entree.java:28: warning: [deprecation] Long(long) in Long has been deprecated
+[Puissance_X] Entree.java:60: warning: [deprecation] Integer(int) in Integer has been deprecated
+[Puissance_X] Entree.java:64: warning: [deprecation] Long(long) in Long has been deprecated
+[Puissance_X] Entree.java:69: warning: [deprecation] Integer(int) in Integer has been deprecated
+[Puissance_X] Case.java:30: warning: [deprecation] Integer(int) in Integer has been deprecated
+[Puissance_X] ChoixValeurItem.java:135: warning: [deprecation] Integer(int) in Integer has been deprecated
+[Puissance_X] VraiIA.java:44: warning: [deprecation] Integer(int) in Integer has been deprecated
+[Puissance_X] 8 warnings

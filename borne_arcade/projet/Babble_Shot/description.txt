@@ -1,0 +1,10 @@
+Babble Shot est un Bubble Shooter neon ultra dynamique.
+Vise et tire pour aligner 3 bulles identiques.
+Les groupes explosent avec des effets visuels.
+Les bulles non accrochees au plafond tombent.
+Enchaine les combos pour maximiser le score.
+Toutes les 6 balles sans gros clear, une ligne apparait.
+Vider toute la grille pour gagner la partie.
+Si les bulles touchent la ligne rouge, c'est perdu.
+Controles arcade adaptes pour une prise en main rapide.
+Bonne chance et vise juste !

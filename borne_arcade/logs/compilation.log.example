@@ -1,0 +1,50 @@
+===== Compilation du menu de la borne d'arcade =====
+Veuillez patienter
+Pas de compilation nécessaire pour ball-blast (projet Python ou autre)
+===== Compilation Columns =====
+Veuillez patienter
+Pas de compilation nécessaire pour CursedWare (projet Python ou autre)
+===== Compilation DinoRail =====
+Veuillez patienter
+===== Compilation InitialDrift =====
+Veuillez patienter
+===== Compilation JavaSpace =====
+Veuillez patienter
+===== Compilation Kowasu_Renga =====
+Veuillez patienter
+===== Compilation Minesweeper =====
+Veuillez patienter
+Pas de compilation nécessaire pour OsuTile (projet Python ou autre)
+Pas de compilation nécessaire pour PianoTile (projet Python ou autre)
+===== Compilation Pong =====
+Veuillez patienter
+===== Compilation Puissance_X =====
+Veuillez patienter
+Entree.java:20: warning: [deprecation] Integer(int) in Integer has been deprecated
+	Integer toucheInteger = new Integer(touche);
+	                        ^
+Entree.java:28: warning: [deprecation] Long(long) in Long has been deprecated
+				derniereRecupTouche.put(toucheInteger, new Long(maintenant));
+				                                       ^
+Entree.java:60: warning: [deprecation] Integer(int) in Integer has been deprecated
+	Integer touche = new Integer(e.getKeyCode());
+	                 ^
+Entree.java:64: warning: [deprecation] Long(long) in Long has been deprecated
+		    derniereRecupTouche.put(touche, new Long(0));
+		                                    ^
+Entree.java:69: warning: [deprecation] Integer(int) in Integer has been deprecated
+	Integer touche = new Integer(e.getKeyCode());
+	                 ^
+Case.java:30: warning: [deprecation] Integer(int) in Integer has been deprecated
+		return (contenu == 0 ? " " : new Integer(contenu).toString());
+		                             ^
+ChoixValeurItem.java:135: warning: [deprecation] Integer(int) in Integer has been deprecated
+			Point tailleNombre = this.mesurer(new Integer(this.valeur).toString(), graphics);
+			                                  ^
+VraiIA.java:44: warning: [deprecation] Integer(int) in Integer has been deprecated
+				this.joueurs.add(new Integer(i));
+				                 ^
+8 warnings
+===== Compilation Snake_Eater =====
+Veuillez patienter
+Pas de compilation nécessaire pour TronGame (projet Python ou autre)

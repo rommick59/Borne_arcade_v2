@@ -1,0 +1,20 @@
+wget https://github.com/love2d/love/releases/download/11.5/love-11.5-linux-armv7l.tar.xz
+installé : pygame et love2d(et le compiler) 
+
+pour librosa j'ai utilisé ceci :
+sudo apt update
+sudo apt install -y gfortran libopenblas-dev liblapack-dev
+pip3 install --user "numpy<2" "scipy<1.12" librosa
+jeu fini :
+- CursedWare
+- Initial Drift
+- Puissance X
+- Columns
+- DinoRail
+- TronGame
+- PongGame
+- PianoTile
+- Minesweeper
+- SnakeEater
+- OsuTile 
+- BallBlast
