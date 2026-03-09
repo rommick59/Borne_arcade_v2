@@ -3,14 +3,16 @@
 # Trouve la racine du projet (répertoire contenant ce script) pour rester robuste
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 GAME_DIR="$ROOT_DIR/projet/CursedWare"
-LOCAL_LOVE="$ROOT_DIR/love-11.5/src/love"
+LOCAL_LOVE_BIN="$ROOT_DIR/love-11.5/src/.libs/love"
+LOCAL_LOVE_LIBDIR="$ROOT_DIR/love-11.5/src/.libs"
 
 cd "$GAME_DIR" || exit 1
 
-# Priorite au runtime local 11.5: corrige le bug "unexpected alignment"
-# observe avec certaines installations 32-bit de Love 11.3.
-if [[ -x "$LOCAL_LOVE" ]]; then
-	"$LOCAL_LOVE" .
+# Priorite au runtime local 11.5 (corrige le bug d'alignement observe en 11.3).
+# On execute directement le binaire .libs avec son LD_LIBRARY_PATH.
+if [[ -x "$LOCAL_LOVE_BIN" ]]; then
+	LD_LIBRARY_PATH="$LOCAL_LOVE_LIBDIR${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
+		"$LOCAL_LOVE_BIN" .
 	exit $?
 fi
 
