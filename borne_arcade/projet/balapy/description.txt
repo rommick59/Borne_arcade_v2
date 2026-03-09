@@ -1,0 +1,7 @@
+BALATRY ARCADE - Jeu de cartes style "balatry"
+
+Version arcade adaptée pour la borne : navigation par flèches, sélection avec les boutons.
+
+Objectif : constituer la meilleure main possible et gagner des points contre l'IA.
+
+Auteur - Antoine Arnoult - 2026
