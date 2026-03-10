@@ -5,6 +5,7 @@ Ce fichier contient les constantes utilisées dans le jeu, y compris les dimensi
 
 import pygame
 import pygame.font
+import pygame.freetype as freetype
 
 # Dimensions de l'écran
 # Reduced resolution for low-RAM cabinet (improves FPS and memory)
@@ -30,10 +31,39 @@ BALL_EQUIVALENT = 8
 FIRERATE = 7
 
 pygame.font.init()
+freetype.init()
 
-# Polices d'écriture
-FONT = pygame.font.SysFont('Comic Sans MS', 30)
-FONT_SCORE = pygame.font.SysFont('Comic Sans MS', 18)
+
+class FontWrapper:
+	"""Wrapper to provide a `render(text, aa, color)` API backed by pygame.freetype.
+
+	It renders at `scale` times the requested size and smoothscales down to improve
+	visual quality (anti-aliasing / less visible pixels) on low-resolution displays.
+	"""
+	def __init__(self, name: str, size: int, scale: int = 2):
+		self.size = size
+		self.scale = max(1, int(scale))
+		# create a freetype font at scaled size
+		try:
+			self.font = freetype.SysFont(name, int(size * self.scale))
+		except Exception:
+			self.font = freetype.SysFont(None, int(size * self.scale))
+
+	def render(self, text: str, aa: bool, color):
+		# freetype returns (surface, rect)
+		surf, _ = self.font.render(text, fgcolor=color, size=int(self.size * self.scale))
+		if self.scale > 1:
+			try:
+				w, h = surf.get_size()
+				surf = pygame.transform.smoothscale(surf, (w // self.scale, h // self.scale))
+			except Exception:
+				pass
+		return surf
+
+
+# Polices d'écriture (use FontWrapper to improve quality)
+FONT = FontWrapper('DejaVu Sans', 30, scale=2)
+FONT_SCORE = FontWrapper('DejaVu Sans', 18, scale=2)
 
 # Mapping utilisé par Ball-Blast :
 # Navigation : flèches gauche/droite uniquement
