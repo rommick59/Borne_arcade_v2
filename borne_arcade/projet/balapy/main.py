@@ -43,7 +43,26 @@ def main():
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
-                game.handle_input(event.key)
+                # Some input devices may produce unexpected keycodes; prefer
+                # the unicode character when available (e.g. remapped keys
+                # on the cabinet producing characters like 'r','t','y').
+                keycode = event.key
+                uni = getattr(event, 'unicode', '')
+                if uni:
+                    try:
+                        keycode = pygame.key.key_code(uni)
+                    except Exception:
+                        pass
+
+                # Debug logging to help diagnose missing mappings on the cabinet
+                try:
+                    with open("balapy_keydebug.log", "a", encoding="utf-8") as dbg:
+                        dbg.write(f"event.key={event.key} unicode={uni!r} resolved={keycode}\n")
+                except Exception:
+                    pass
+                print(f"[balapy-debug] key={event.key} unicode={uni!r} resolved={keycode}")
+
+                game.handle_input(keycode)
 
         game.update(dt)
         game.draw()

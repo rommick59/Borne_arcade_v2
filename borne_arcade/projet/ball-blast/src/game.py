@@ -1,7 +1,7 @@
 from ball import Ball
 from bullet import Bullet
 from player import Player
-from constantes import WHITE, BLACK, RED, GREEN, BLUE, SCREEN_WIDTH, SCREEN_HEIGHT, FONT, FIRERATE, BALL_EQUIVALENT, FONT_SCORE
+from constantes import WHITE, BLACK, RED, GREEN, BLUE, SCREEN_WIDTH, SCREEN_HEIGHT, FONT, FIRERATE, BALL_EQUIVALENT, FONT_SCORE, SELECT_KEY, BACK_KEY, PAUSE_KEY
 
 import pygame
 import random
@@ -76,11 +76,14 @@ class Game():
             self.screen.blit(FONT.render('NIVEAU ' + str(self.level), True, (0, 0, 0)),(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
             return False, False
             
-        if pygame.key.get_pressed()[pygame.K_f]:
-            if self.perdu:
-                return True,False
-            else:
-                return False, True
+        keys = pygame.key.get_pressed()
+        # R = select/confirm (only used when lost to confirm),
+        # F = back/return, T = pause
+        if keys[SELECT_KEY] and self.perdu:
+            return True, False
+        if keys[PAUSE_KEY]:
+            # Request pause -> return pause=True
+            return False, True
 
         self.shootCD += 1
         
@@ -220,12 +223,12 @@ class Game():
                     break
                 
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_r:
+                    if event.key == SELECT_KEY:
                         # Valider le pseudo et enregistrer le score
                         pseudo = ''.join([alphabet[i] for i in pseudo_chars])
                         self._saveScore(pseudo)
                         input_active = False
-                    elif event.key == pygame.K_f:
+                    elif event.key == BACK_KEY:
                         # Annuler la saisie
                         input_active = False
                     elif event.key == pygame.K_UP:

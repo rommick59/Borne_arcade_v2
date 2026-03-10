@@ -3,6 +3,7 @@
 Ce fichier contient les constantes utilisées dans le jeu, y compris les dimensions de l'écran, les couleurs, les vitesses et les polices d'écriture.
 """
 
+import pygame
 import pygame.font
 
 # Dimensions de l'écran
@@ -32,3 +33,12 @@ pygame.font.init()
 # Polices d'écriture
 FONT = pygame.font.SysFont('Comic Sans MS', 30)
 FONT_SCORE = pygame.font.SysFont('Comic Sans MS', 18)
+
+# Mapping utilisé par Ball-Blast :
+# Navigation : flèches gauche/droite uniquement
+LEFT_KEYS = (pygame.K_LEFT,)
+RIGHT_KEYS = (pygame.K_RIGHT,)
+# Actions : Valider = R, Retour = F, Pause = T
+SELECT_KEY = pygame.K_r
+BACK_KEY = pygame.K_f
+PAUSE_KEY = pygame.K_t

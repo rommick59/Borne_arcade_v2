@@ -13,6 +13,15 @@ from renderer import (CardRenderer, HUDRenderer, Fonts, draw_rounded_rect,
                       C_WHITE, C_GRAY, C_RED, C_GREEN, C_BLUE, C_PURPLE, C_ORANGE,
                       C_DARK_RED, C_DARK_GREEN, SUIT_FG, lerp)
 
+# Accept both arrow keys and borne remapped letters
+LEFT_KEYS = (pygame.K_LEFT,)
+RIGHT_KEYS = (pygame.K_RIGHT,)
+# Action keys (bas de la borne)
+SELECT_KEY = pygame.K_f
+PLAY_KEY = pygame.K_g
+DISCARD_KEY = pygame.K_h
+BUTTON_KEYS = (SELECT_KEY, PLAY_KEY, DISCARD_KEY)
+
 
 # Configuration des niveaux (blind)
 BLINDS = [
@@ -158,7 +167,7 @@ class Game:
             self.state = 'PLAYING'
 
     def _menu_input(self, key):
-        if key in (pygame.K_f, pygame.K_RETURN, pygame.K_SPACE):
+        if key in (SELECT_KEY, pygame.K_RETURN, pygame.K_SPACE):
             self._init_game()
             self._start_round()
             self.state = 'PLAYING'
@@ -167,15 +176,15 @@ class Game:
         if not self.hand:
             return
 
-        if key == pygame.K_LEFT:
+        if key in LEFT_KEYS:
             self.cursor = (self.cursor - 1) % len(self.hand)
 
 
-        elif key == pygame.K_RIGHT:
+        elif key in RIGHT_KEYS:
             self.cursor = (self.cursor + 1) % len(self.hand)
 
 
-        elif key == pygame.K_f:
+        elif key == SELECT_KEY:
             # Sélectionner / désélectionner la carte sous le curseur
             card = self.hand[self.cursor]
             if card in self.selected:
@@ -183,23 +192,23 @@ class Game:
             elif len(self.selected) < MAX_SELECTED:
                 self.selected.append(card)
 
-        elif key == pygame.K_g:
+        elif key == PLAY_KEY:
             # JOUER la main sélectionnée
             if self.selected and self.hands_left > 0:
                 self._play_hand()
 
-        elif key == pygame.K_h:
+        elif key == DISCARD_KEY:
             # DÉFAUSSER les cartes sélectionnées
             if self.selected and self.discards_left > 0:
                 self._discard()
 
-        elif key == pygame.K_t:
+        elif key in (pygame.K_t, pygame.K_y):
             # Afficher info jokers
             pass  # Géré dans le rendu
 
     def _scoring_input(self, key):
         # Passer l'animation de score
-        if key in (pygame.K_f, pygame.K_RETURN):
+        if key in (SELECT_KEY, pygame.K_RETURN):
             self.scoring_phase = False
             self.state = 'PLAYING'
             self._check_round_end()
@@ -207,20 +216,22 @@ class Game:
     def _shop_input(self, key):
         n = len(self.shop_items)
         if n == 0:
-            if key in (pygame.K_h, pygame.K_r):
+            # When shop empty, allow DISCARD or top-row 'r' to continue
+            if key in (DISCARD_KEY, pygame.K_r):
                 self._next_round()
             return
 
-        if key == pygame.K_LEFT:
+        if key in LEFT_KEYS:
             self.shop_cursor = (self.shop_cursor - 1) % n
-        elif key == pygame.K_RIGHT:
+        elif key in RIGHT_KEYS:
             self.shop_cursor = (self.shop_cursor + 1) % n
-        elif key == pygame.K_f:
-            # Acheter l'item sélectionné
-            self._buy_shop_item(self.shop_cursor)
-        elif key == pygame.K_h:
-            # Continuer / passer le shop
-            self._next_round()
+        elif key in BUTTON_KEYS:
+            # Acheter l'item sélectionné (F = acheter)
+            # We treat SELECT_KEY as buy in shop context
+            if key == SELECT_KEY:
+                self._buy_shop_item(self.shop_cursor)
+            elif key == DISCARD_KEY:
+                self._next_round()
 
     def _gameover_input(self, key):
         if key in (pygame.K_f, pygame.K_RETURN):
