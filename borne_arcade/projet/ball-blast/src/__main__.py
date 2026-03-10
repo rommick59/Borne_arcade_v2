@@ -102,12 +102,12 @@ while running:
             gameState, gameOver = game.registerScore()
 
     t_after_update = time.perf_counter()
-        
-        # Si on passe du jeu au menu
-        if pause:
-            gameState = False
-            pygame.mixer.music.load("assets/sound/menu.mp3")
-            pygame.mixer.music.play()
+
+    # Si on passe du jeu au menu
+    if pause:
+        gameState = False
+        pygame.mixer.music.load("assets/sound/menu.mp3")
+        pygame.mixer.music.play()
 
     pygame.display.update()
 
