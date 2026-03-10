@@ -347,11 +347,11 @@ class Game():
 
             # Update display once after all controls are blitted
             pygame.display.flip()
-            # Use the shared clock instead of creating a new one
+            # Use the shared clock instead of creating a new one (30 FPS target for low-RAM hardware)
             try:
-                self.clock.tick(60)
+                self.clock.tick(30)
             except Exception:
-                pygame.time.Clock().tick(60)
+                pygame.time.Clock().tick(30)
         
         return False,False
     

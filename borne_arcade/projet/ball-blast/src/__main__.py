@@ -103,10 +103,10 @@ while running:
             pygame.mixer.music.play()
 
     pygame.display.update()
-    clock.tick(60)
-    # simple FPS logging every ~60 frames (once/second)
+    clock.tick(30)
+    # simple FPS logging every ~30 frames (once/second)
     frame_counter += 1
-    if FPS_ENABLED and frame_counter % 60 == 0:
+    if FPS_ENABLED and frame_counter % 30 == 0:
         try:
             import os
             os.makedirs(os.path.dirname(FPS_LOG_FILE), exist_ok=True)
