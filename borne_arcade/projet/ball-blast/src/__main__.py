@@ -1,4 +1,4 @@
-from constantes import SCREEN_WIDTH, SCREEN_HEIGHT
+from constantes import SCREEN_WIDTH, SCREEN_HEIGHT, FPS_ENABLED, FPS_LOG_FILE
 from menu import Menu
 from game import Game
 
@@ -15,10 +15,12 @@ os.environ['SDL_VIDEO_CENTERED'] = '1'
 # Set up the display
 pygame.display.set_caption("Ball Blast")
 # Open window in fullscreen using the configured resolution
-screen: pygame.Surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN)
+# Use DOUBLEBUF and HWSURFACE for better blit performance in fullscreen
+screen: pygame.Surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN | pygame.HWSURFACE | pygame.DOUBLEBUF)
 # Game loop
 running = True
 clock = pygame.time.Clock()
+frame_counter = 0
 
 # sound1 = pygame.mixer.Sound("./assets/sound/bip.mp3")
 # sound2 = pygame.mixer.Sound("./assets/sound/explosion.mp3")
@@ -101,7 +103,17 @@ while running:
             pygame.mixer.music.play()
 
     pygame.display.update()
-    clock.tick(40)
+    clock.tick(60)
+    # simple FPS logging every ~60 frames (once/second)
+    frame_counter += 1
+    if FPS_ENABLED and frame_counter % 60 == 0:
+        try:
+            import os
+            os.makedirs(os.path.dirname(FPS_LOG_FILE), exist_ok=True)
+            with open(FPS_LOG_FILE, "a", encoding="utf-8") as f:
+                f.write(f"{pygame.time.get_ticks()}\t{clock.get_fps():.1f}\n")
+        except Exception:
+            pass
 
 pygame.quit()
 exit(0)

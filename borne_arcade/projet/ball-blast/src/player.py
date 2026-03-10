@@ -36,7 +36,12 @@ class Player(pygame.sprite.Sprite):
             - Initialise le score à 0
         """
         super().__init__()
-        self.canon = pygame.transform.scale(pygame.image.load("assets/canon.png"),(33,66))
+        # load and convert images once for faster blitting
+        try:
+            canon_img = pygame.image.load("assets/canon.png").convert_alpha()
+        except Exception:
+            canon_img = pygame.image.load("assets/canon.png")
+        self.canon = pygame.transform.scale(canon_img, (33, 66)).convert_alpha()
         self.rect = self.canon.get_rect()
         self.image = self.canon
         self.rect.centerx = SCREEN_WIDTH // 2
@@ -130,7 +135,11 @@ class Wheel(pygame.sprite.Sprite):
             - Initialise l'angle de rotation à 0
         """
         super().__init__()
-        self.original_image = pygame.transform.scale(pygame.image.load("assets/wheel.png"),(25,25))
+        try:
+            wheel_img = pygame.image.load("assets/wheel.png").convert_alpha()
+        except Exception:
+            wheel_img = pygame.image.load("assets/wheel.png")
+        self.original_image = pygame.transform.scale(wheel_img, (25, 25)).convert_alpha()
         self.image = self.original_image
         self.rect = self.image.get_rect()
         self.xoffset = xoffset

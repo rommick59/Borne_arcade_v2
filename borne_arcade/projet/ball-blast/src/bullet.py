@@ -25,8 +25,12 @@ class Bullet(pygame.sprite.Sprite):
             None
         """
         super().__init__()
-        self.image = pygame.Surface((10, 20))
+        self.image = pygame.Surface((10, 20), pygame.SRCALPHA)
         self.image.fill(RED)
+        try:
+            self.image = self.image.convert_alpha()
+        except Exception:
+            pass
         self.rect: pygame.Rect = self.image.get_rect()
         self.rect.bottom = y
         self.rect.centerx = x

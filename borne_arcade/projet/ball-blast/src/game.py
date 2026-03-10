@@ -165,12 +165,9 @@ class Game():
 
         self.all_sprites.draw(self.screen)
 
-        # On affiche le score
+        # Pre-create score box to avoid allocating each frame
         self.score_box = pygame.Surface((150, 50), pygame.SRCALPHA)
         pygame.draw.rect(self.score_box, (255, 255, 255, 180), self.score_box.get_rect())
-        self.score_texte = FONT_SCORE.render("Score : " + str(self.player.score), True, (0, 0, 0))
-        self.score_box.blit(self.score_texte, (10, 10))
-        self.screen.blit(self.score_box, (10, 10))
 
         # Affichage du FPS si activé
         try:
@@ -232,13 +229,28 @@ class Game():
         input_active = True
         cursor_visible = True
         cursor_timer = 0
-        
+
+        # Pré-rendu des textes statiques pour éviter de les re-créer chaque frame
+        title_text = FONT.render("ENREGISTRER LE SCORE !", True, WHITE)
+        title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 100))
+        score_text_static = FONT.render(f"Score: {self.player.score}", True, WHITE)
+        score_rect = score_text_static.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 60))
+        instruction_text = FONT_SCORE.render("Entrez votre pseudo (3 lettres):", True, WHITE)
+        instruction_rect = instruction_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 20))
+        controls_texts = [
+            "↑↓ : Changer la lettre",
+            "←→ : Changer de position",
+            "R : Valider",
+            "F : Annuler"
+        ]
+        controls_surfaces = [FONT_SCORE.render(t, True, WHITE) for t in controls_texts]
+
         while input_active:
             cursor_timer += 1
             if cursor_timer >= 20:  # Clignote toutes les 20 frames
                 cursor_visible = not cursor_visible
                 cursor_timer = 0
-            
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     input_active = False
@@ -278,20 +290,14 @@ class Game():
             
             # Affichage
             self.screen.blit(self.texture, (0,0))
-            
+
             # Titre
-            title_text = FONT.render("ENREGISTRER LE SCORE !", True, WHITE)
-            title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 100))
             self.screen.blit(title_text, title_rect)
-            
+
             # Score
-            score_text = FONT.render(f"Score: {self.player.score}", True, WHITE)
-            score_rect = score_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 60))
-            self.screen.blit(score_text, score_rect)
-            
+            self.screen.blit(score_text_static, score_rect)
+
             # Instructions
-            instruction_text = FONT_SCORE.render("Entrez votre pseudo (3 lettres):", True, WHITE)
-            instruction_rect = instruction_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 20))
             self.screen.blit(instruction_text, instruction_rect)
             
             # Affichage des 3 caractères
@@ -335,13 +341,17 @@ class Game():
                 "F : Annuler"
             ]
             
-            for j, text in enumerate(controls_text):
-                control_surface = FONT_SCORE.render(text, True, WHITE)
+            for j, control_surface in enumerate(controls_surfaces):
                 control_rect = control_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 90 + j * 20))
                 self.screen.blit(control_surface, control_rect)
-            
+
+            # Update display once after all controls are blitted
             pygame.display.flip()
-            pygame.time.Clock().tick(40)
+            # Use the shared clock instead of creating a new one
+            try:
+                self.clock.tick(60)
+            except Exception:
+                pygame.time.Clock().tick(60)
         
         return False,False
     
