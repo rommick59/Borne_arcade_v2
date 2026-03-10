@@ -36,6 +36,21 @@ class Game():
         self.path: str = "./assets/explosion_frames/frame-"
         self.perdu = False
 
+        # Preload explosion frames to avoid loading from disk each frame
+        self.death_frames = []
+        for i in range(1, 18):
+            fname = None
+            if i <= 9:
+                fname = f"{self.path}0{i}.png"
+            else:
+                fname = f"{self.path}{i}.png"
+            try:
+                img = pygame.image.load(fname).convert_alpha()
+                self.death_frames.append(img)
+            except Exception:
+                # ignore missing frames
+                pass
+
         # Initialize player, balls, and bullets
         self.player = Player()
         wheels = self.player.getWheels()
@@ -172,16 +187,12 @@ class Game():
                 pygame.mixer.music.load("./assets/sound//musicdeath.mp3")
                 pygame.mixer.music.play()
 
-            if self.frameNumberLoseAnim < 17:
+            if self.frameNumberLoseAnim < len(self.death_frames):
                 self.frameNumberLoseAnim += 1
-                if self.frameNumberLoseAnim <= 9:
-                    deathImage = pygame.image.load(
-                        self.path + "0" + str(self.frameNumberLoseAnim) + ".png")
-                else:
-                    deathImage = pygame.image.load(
-                        self.path + str(self.frameNumberLoseAnim) + ".png")
-                self.screen.blit(deathImage, (self.player.rect.left -
-                                              20, self.player.rect.top-80))
+                idx = self.frameNumberLoseAnim - 1
+                if 0 <= idx < len(self.death_frames):
+                    deathImage = self.death_frames[idx]
+                    self.screen.blit(deathImage, (self.player.rect.left - 20, self.player.rect.top - 80))
 
         # Si il n'y a plus aucune balle, il gagne
         if len(self.balls.sprites()) == 0 and not self.perdu:
