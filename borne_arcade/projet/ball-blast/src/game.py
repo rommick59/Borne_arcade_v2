@@ -222,26 +222,35 @@ class Game():
                     input_active = False
                     pygame.quit()
                     break
-                
+
                 if event.type == pygame.KEYDOWN:
-                    if event.key == SELECT_KEY:
+                    # Normalize unicode -> key so remapped cabinet keys work
+                    key = event.key
+                    uni = getattr(event, 'unicode', '')
+                    if uni:
+                        try:
+                            key = pygame.key.key_code(uni)
+                        except Exception:
+                            key = event.key
+
+                    if key == SELECT_KEY:
                         # Valider le pseudo et enregistrer le score
                         pseudo = ''.join([alphabet[i] for i in pseudo_chars])
                         self._saveScore(pseudo)
                         input_active = False
-                    elif event.key == BACK_KEY:
+                    elif key == BACK_KEY:
                         # Annuler la saisie
                         input_active = False
-                    elif event.key == pygame.K_UP:
+                    elif key == pygame.K_UP:
                         # Lettre suivante dans l'alphabet
                         pseudo_chars[current_position] = (pseudo_chars[current_position] + 1) % len(alphabet)
-                    elif event.key == pygame.K_DOWN:
+                    elif key == pygame.K_DOWN:
                         # Lettre précédente dans l'alphabet
                         pseudo_chars[current_position] = (pseudo_chars[current_position] - 1) % len(alphabet)
-                    elif event.key == pygame.K_LEFT:
+                    elif key == pygame.K_LEFT:
                         # Position précédente
                         current_position = (current_position - 1) % 3
-                    elif event.key == pygame.K_RIGHT:
+                    elif key == pygame.K_RIGHT:
                         # Position suivante
                         current_position = (current_position + 1) % 3
             
