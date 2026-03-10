@@ -42,3 +42,9 @@ RIGHT_KEYS = (pygame.K_RIGHT,)
 SELECT_KEY = pygame.K_r
 BACK_KEY = pygame.K_f
 PAUSE_KEY = pygame.K_t
+ 
+# Afficher un compteur FPS à l'écran (utile pour debugging/perf)
+FPS_ENABLED = True
+
+# Optionnel: chemin pour logger les FPS si besoin
+FPS_LOG_FILE = "logs/ball_blast_fps.log"

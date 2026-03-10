@@ -1,7 +1,7 @@
 from ball import Ball
 from bullet import Bullet
 from player import Player
-from constantes import WHITE, BLACK, RED, GREEN, BLUE, SCREEN_WIDTH, SCREEN_HEIGHT, FONT, FIRERATE, BALL_EQUIVALENT, FONT_SCORE, SELECT_KEY, BACK_KEY, PAUSE_KEY
+from constantes import WHITE, BLACK, RED, GREEN, BLUE, SCREEN_WIDTH, SCREEN_HEIGHT, FONT, FIRERATE, BALL_EQUIVALENT, FONT_SCORE, SELECT_KEY, BACK_KEY, PAUSE_KEY, FPS_ENABLED
 
 import pygame
 from input_helper import is_pressed
@@ -9,8 +9,10 @@ import random
 
 
 class Game():
-    def __init__(self, screen: pygame.Surface):
+    def __init__(self, screen: pygame.Surface, clock: pygame.time.Clock):
         self.screen: pygame.Surface = screen
+        # reference to main loop clock to read fps
+        self.clock = clock
         self.level = 0
         # Création des variables de jeu
         self.ball_level = [[BLACK, 50], [RED, 40], [GREEN, 33], [BLUE, 25]]
@@ -169,6 +171,15 @@ class Game():
         self.score_texte = FONT_SCORE.render("Score : " + str(self.player.score), True, (0, 0, 0))
         self.score_box.blit(self.score_texte, (10, 10))
         self.screen.blit(self.score_box, (10, 10))
+
+        # Affichage du FPS si activé
+        try:
+            if FPS_ENABLED and hasattr(self, 'clock'):
+                fps = self.clock.get_fps()
+                fps_text = FONT_SCORE.render(f"FPS: {fps:.1f}", True, WHITE)
+                self.screen.blit(fps_text, (SCREEN_WIDTH - 120, 10))
+        except Exception:
+            pass
 
         hitPlayer = pygame.sprite.groupcollide(
             self.balls, self.playerGroup, False, False)

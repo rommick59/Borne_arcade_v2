@@ -77,7 +77,7 @@ while running:
     elif not gameState:
         gameState, newGame, credits = menu.showMenu(events, pause)
         if gameState and newGame:
-            game = Game(screen)
+            game = Game(screen, clock)
             newGame = False
 
         # Si on passe du menu au jeu
