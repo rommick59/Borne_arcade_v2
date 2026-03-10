@@ -25,6 +25,14 @@ else
     echo "- $INSTALL_LAYOUT_SCRIPT"
 fi
 
+# Remet le clavier en FR lors de la fermeture du script
+cleanup() {
+    if command -v setxkbmap >/dev/null 2>&1; then
+        setxkbmap fr || true
+    fi
+}
+trap cleanup EXIT INT TERM
+
 setxkbmap borne
 
 print_section "Nettoyage des répertoires. Veuillez patienter"
