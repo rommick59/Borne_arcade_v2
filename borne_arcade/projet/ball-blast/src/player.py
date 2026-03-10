@@ -177,9 +177,13 @@ class Wheel(pygame.sprite.Sprite):
             - Ajuste le rectangle de collision pour maintenir le centre
               de rotation
         """
+        # If no angle change, avoid costly rotation operation
+        if angle == 0:
+            return
+
         self.angleRotated += angle
-        rotated_image = pygame.transform.rotate(self.original_image,self.angleRotated)
+        rotated_image = pygame.transform.rotate(self.original_image, self.angleRotated)
         rotated_rect = rotated_image.get_rect(center=self.rect.center)
-        
+
         self.image = rotated_image
         self.rect = rotated_rect

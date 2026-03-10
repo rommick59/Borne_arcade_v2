@@ -48,6 +48,12 @@ class Game():
                 fname = f"{self.path}{i}.png"
             try:
                 img = pygame.image.load(fname).convert_alpha()
+                # Downscale explosion frames to save memory on low-RAM devices
+                try:
+                    w, h = img.get_size()
+                    img = pygame.transform.smoothscale(img, (max(1, w//2), max(1, h//2)))
+                except Exception:
+                    pass
                 self.death_frames.append(img)
             except Exception:
                 # ignore missing frames
@@ -64,6 +70,9 @@ class Game():
         self.all_sprites.add(self.playerGroup)
         self.all_sprites.add(wheels[0])
         self.all_sprites.add(wheels[1])
+        # Pre-create score box to avoid allocating each frame
+        self.score_box = pygame.Surface((150, 50), pygame.SRCALPHA)
+        pygame.draw.rect(self.score_box, (255, 255, 255, 180), self.score_box.get_rect())
     
     #Crée toutes les boules et les ajoutes dans le jeu
     def createBalls(self):

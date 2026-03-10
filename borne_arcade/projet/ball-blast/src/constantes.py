@@ -7,8 +7,9 @@ import pygame
 import pygame.font
 
 # Dimensions de l'écran
-SCREEN_WIDTH = 1240  #1024 
-SCREEN_HEIGHT = 1023  #768 
+# Reduced resolution for low-RAM cabinet (improves FPS and memory)
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
 
 # Couleurs
 WHITE = (255, 255, 255)
@@ -25,7 +26,7 @@ BALL_SPEED_X = 2
 BALL_SPEED_FALL = 0.15
 BALL_TOP_BOUNCE = -17
 BALL_BOTTOM_BOUNCE = -14
-BALL_EQUIVALENT = 14
+BALL_EQUIVALENT = 8
 FIRERATE = 7
 
 pygame.font.init()

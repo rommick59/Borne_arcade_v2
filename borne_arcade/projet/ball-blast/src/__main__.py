@@ -1,4 +1,5 @@
 from constantes import SCREEN_WIDTH, SCREEN_HEIGHT, FPS_ENABLED, FPS_LOG_FILE
+import time
 from menu import Menu
 from game import Game
 
@@ -44,7 +45,9 @@ pygame.mixer.music.play()
 
 while running:
 
+    t_start = time.perf_counter()
     events = pygame.event.get()
+    t_after_events = time.perf_counter()
     
     for event in events:
         if event.type == pygame.QUIT:
@@ -74,6 +77,8 @@ while running:
             except Exception:
                 pass
 
+    t_after_event_loop = time.perf_counter()
+
     if credits:
         credits = menu.showCredits()
     elif not gameState:
@@ -95,6 +100,8 @@ while running:
 
         if gameOver:
             gameState, gameOver = game.registerScore()
+
+    t_after_update = time.perf_counter()
         
         # Si on passe du jeu au menu
         if pause:
@@ -103,15 +110,18 @@ while running:
             pygame.mixer.music.play()
 
     pygame.display.update()
+
+    t_after_draw = time.perf_counter()
+
     clock.tick(30)
-    # simple FPS logging every ~30 frames (once/second)
+    # simple FPS logging and basic profiling every ~30 frames (≈1s)
     frame_counter += 1
     if FPS_ENABLED and frame_counter % 30 == 0:
         try:
             import os
             os.makedirs(os.path.dirname(FPS_LOG_FILE), exist_ok=True)
             with open(FPS_LOG_FILE, "a", encoding="utf-8") as f:
-                f.write(f"{pygame.time.get_ticks()}\t{clock.get_fps():.1f}\n")
+                f.write(f"{pygame.time.get_ticks()}\tFPS:{clock.get_fps():.1f}\tEvt:{(t_after_events-t_start)*1000:.1f}ms\tLoop:{(t_after_event_loop-t_after_events)*1000:.1f}ms\tUpd:{(t_after_update-t_after_event_loop)*1000:.1f}ms\tDraw:{(t_after_draw-t_after_update)*1000:.1f}ms\n")
         except Exception:
             pass
 
