@@ -49,6 +49,20 @@ while running:
             running = False
             break
 
+        # Normalize events: if the device sends a unicode character (e.g. 'r','t','y')
+        # prefer converting that to the corresponding pygame key constant so
+        # downstream code checking `event.key` works reliably.
+        if event.type in (pygame.KEYDOWN, pygame.KEYUP):
+            uni = getattr(event, 'unicode', '')
+            if uni:
+                try:
+                    mapped = pygame.key.key_code(uni)
+                    # pygame Event attributes are mutable - override key so
+                    # existing checks on event.key behave as expected
+                    event.key = mapped
+                except Exception:
+                    pass
+
     if credits:
         credits = menu.showCredits()
     elif not gameState:
