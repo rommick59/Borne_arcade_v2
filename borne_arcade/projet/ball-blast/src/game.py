@@ -4,6 +4,7 @@ from player import Player
 from constantes import WHITE, BLACK, RED, GREEN, BLUE, SCREEN_WIDTH, SCREEN_HEIGHT, FONT, FIRERATE, BALL_EQUIVALENT, FONT_SCORE, SELECT_KEY, BACK_KEY, PAUSE_KEY
 
 import pygame
+from input_helper import is_pressed
 import random
 
 
@@ -76,12 +77,12 @@ class Game():
             self.screen.blit(FONT.render('NIVEAU ' + str(self.level), True, (0, 0, 0)),(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
             return False, False
             
-        keys = pygame.key.get_pressed()
+        # Use input_helper to read state from normalized events
         # R = select/confirm (only used when lost to confirm),
         # F = back/return, T = pause
-        if keys[SELECT_KEY] and self.perdu:
+        if is_pressed(SELECT_KEY) and self.perdu:
             return True, False
-        if keys[PAUSE_KEY]:
+        if is_pressed(PAUSE_KEY):
             # Request pause -> return pause=True
             return False, True
 

@@ -5,6 +5,7 @@ Module contenant la gestion de l'interface de menu du jeu
 import pygame
 
 from constantes import WHITE, BLACK, RED, GREEN, BLUE, SCREEN_WIDTH, SCREEN_HEIGHT, FONT, SELECT_KEY, BACK_KEY
+from input_helper import is_pressed
 
 
 class Menu:
@@ -166,8 +167,7 @@ class Menu:
         back_rect = back_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 150))
         self.screen.blit(back_text, back_rect)
         
-        keys = pygame.key.get_pressed()
-        if keys[BACK_KEY]:
+        if is_pressed(BACK_KEY):
             return False
         
         return True

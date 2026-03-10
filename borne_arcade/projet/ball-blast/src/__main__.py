@@ -51,17 +51,26 @@ while running:
 
         # Normalize events: if the device sends a unicode character (e.g. 'r','t','y')
         # prefer converting that to the corresponding pygame key constant so
-        # downstream code checking `event.key` works reliably.
+        # downstream code checking `event.key` works reliably. Also update
+        # input_helper so `is_pressed()` reflects the event state.
         if event.type in (pygame.KEYDOWN, pygame.KEYUP):
             uni = getattr(event, 'unicode', '')
+            mapped = event.key
             if uni:
                 try:
                     mapped = pygame.key.key_code(uni)
-                    # pygame Event attributes are mutable - override key so
-                    # existing checks on event.key behave as expected
                     event.key = mapped
                 except Exception:
-                    pass
+                    mapped = event.key
+            # update input helper state
+            try:
+                from input_helper import on_keydown, on_keyup
+                if event.type == pygame.KEYDOWN:
+                    on_keydown(mapped)
+                else:
+                    on_keyup(mapped)
+            except Exception:
+                pass
 
     if credits:
         credits = menu.showCredits()

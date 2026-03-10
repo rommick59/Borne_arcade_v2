@@ -1,5 +1,6 @@
 import pygame
 from constantes import RED, SCREEN_WIDTH, SCREEN_HEIGHT, PLAYER_SPEED, LEFT_KEYS, RIGHT_KEYS
+from input_helper import is_pressed
 
 """Module contenant la logique du joueur et de ses roues dans le jeu
 
@@ -61,9 +62,8 @@ class Player(pygame.sprite.Sprite):
             - Gère les collisions avec les bords de l'écran
         """
         self.speed_x = 0
-        keys = pygame.key.get_pressed()
-        move_left = any(keys[k] for k in LEFT_KEYS)
-        move_right = any(keys[k] for k in RIGHT_KEYS)
+        move_left = any(is_pressed(k) for k in LEFT_KEYS)
+        move_right = any(is_pressed(k) for k in RIGHT_KEYS)
         if move_left and not move_right:
             self.speed_x = -PLAYER_SPEED
         elif move_right and not move_left:
