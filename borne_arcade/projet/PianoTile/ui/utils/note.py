@@ -54,12 +54,10 @@ class Note:
 
     def draw(self):
         surface = self.__gameview.getWindowManager().getWindow()
-
+        # Dessiner directement un rectangle (évite l'allocation d'une Surface par note)
         if self.__clicked:
-            note_surface = pygame.Surface((self.__rect.width, self.__rect.height), pygame.SRCALPHA)
-            note_surface.fill(self.__gameview.getWindowManager().getColor().getRose())
-            surface.blit(note_surface, self.__rect.topleft)
+            color = self.__gameview.getWindowManager().getColor().getRose()
         else:
-            note_surface = pygame.Surface((self.__rect.width, self.__rect.height), pygame.SRCALPHA)
-            note_surface.fill(self.__gameview.getWindowManager().getColor().getNoir())
-            surface.blit(note_surface, self.__rect.topleft)
+            color = self.__gameview.getWindowManager().getColor().getNoir()
+
+        pygame.draw.rect(surface, color, self.__rect)

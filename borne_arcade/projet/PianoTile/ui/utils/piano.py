@@ -25,29 +25,22 @@ class Piano:
         pygame.mixer.music.pause()
 
     def generate_notes(self):
-        print("Generation des notes (sans librosa) depuis :", self.__filepath)
+        # Génération allégée des notes : on limite la fenêtre temporelle
+        # et le nombre de notes pour réduire mémoire/CPU sur la borne (1 Go RAM).
+        song_length = 60.0
+        max_window = min(song_length, 30.0)  # ne générer que 30s max
 
-        # On estime la duree de la piste pour espacer les notes
-        try:
-            track = pygame.mixer.Sound(self.__filepath)
-            song_length = track.get_length()
-        except Exception as exc:  # pragma: no cover - depend des codecs dispo
-            print("Impossible de lire la duree du morceau, fallback 60s:", exc)
-            song_length = 60.0
-
-        tempo_bpm = 120  # rythme par defaut
+        tempo_bpm = 80  # tempo réduit pour moins d'objets à l'écran
         beat_interval = 60.0 / tempo_bpm
 
         notes = []
         current_time = 0.0
-        while current_time <= song_length:
-            nb_notes = min(self.__difficulty, random.randint(1, 3))
-            for _ in range(nb_notes):
-                position = random.choice(["left", "middle", "right", "top"])
-                notes.append(Note(gameview=self.__gameView, position=position, timestamp=current_time))
+        while current_time <= max_window:
+            # Une seule note par temps pour réduire la charge
+            position = random.choice(["left", "middle", "right", "top"])
+            notes.append(Note(gameview=self.__gameView, position=position, timestamp=current_time))
             current_time += beat_interval
 
-        print(f"{len(notes)} notes generees sur {song_length:.1f}s (tempo {tempo_bpm} BPM).")
         return notes
 
     def getCurrentTime(self):

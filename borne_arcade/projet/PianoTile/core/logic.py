@@ -469,7 +469,8 @@ class Logic:
                                     self.getInterface().setUpdate(True)
 
                             pygame.display.flip()
-                            clock.tick(60)
+                            # Baisser la fréquence d'images pour réduire la charge CPU/RAM
+                            clock.tick(30)
 
                     else:
                         # Mode solo inchangé
@@ -523,7 +524,8 @@ class Logic:
                                     self.getInterface().setUpdate(True)
 
                             pygame.display.flip()
-                            clock.tick(60)
+                            # Baisser la fréquence d'images pour réduire la charge CPU/RAM
+                            clock.tick(30)
 
             elif isinstance(direction, tuple):
                 self.getInterface().getWindowManager().getSelection().updatePosition(direction)
