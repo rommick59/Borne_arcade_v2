@@ -84,6 +84,12 @@ install_python() {
     sudo apt update || true
     if sudo apt install -y python3.12 python3.12-venv python3.12-dev 2>/dev/null; then
         echo "python3.12 installé via APT"
+        if command -v python3.12 >/dev/null 2>&1; then
+            PY_BIN=python3.12
+            $PY_BIN -m ensurepip --upgrade 2>/dev/null || sudo $PY_BIN -m ensurepip --upgrade || true
+            $PY_BIN -m pip install --upgrade pip setuptools wheel || sudo $PY_BIN -m pip install --upgrade pip setuptools wheel || true
+            echo "pip configuré pour $PY_BIN"
+        fi
         return
     fi
 
@@ -117,6 +123,10 @@ install_python() {
 
     if command -v python3.12 >/dev/null 2>&1; then
         echo "python3.12 installé avec succès"
+        PY_BIN=python3.12
+        $PY_BIN -m ensurepip --upgrade 2>/dev/null || sudo $PY_BIN -m ensurepip --upgrade || true
+        $PY_BIN -m pip install --upgrade pip setuptools wheel || sudo $PY_BIN -m pip install --upgrade pip setuptools wheel || true
+        echo "pip configuré pour $PY_BIN"
     else
         echo "pyenv/apt n'ont pas fourni python3.12 — tentative de compilation depuis les sources"
 
@@ -153,6 +163,10 @@ install_python() {
 
         if command -v python3.12 >/dev/null 2>&1; then
             echo "python3.12 disponible"
+            PY_BIN=python3.12
+            $PY_BIN -m ensurepip --upgrade 2>/dev/null || sudo $PY_BIN -m ensurepip --upgrade || true
+            $PY_BIN -m pip install --upgrade pip setuptools wheel || sudo $PY_BIN -m pip install --upgrade pip setuptools wheel || true
+            echo "pip configuré pour $PY_BIN"
         else
             echo "Échec final: python3.12 non installé"
             exit 1
@@ -167,12 +181,24 @@ install_python() {
 check_pygame() {
     print_section "VÉRIFICATION PYGAME"
 
-    if python3 -c "import pygame" >/dev/null 2>&1; then
-        PYGAME_VERSION=$(python3 -c "import pygame; print(pygame.__version__)")
-        echo "Pygame déjà installé (version $PYGAME_VERSION)"
+    # Preferer python3.12 si disponible, sinon fallback to python3
+    if command -v python3.12 >/dev/null 2>&1; then
+        PYTHON_BIN=python3.12
+    elif command -v python3 >/dev/null 2>&1; then
+        PYTHON_BIN=python3
+    else
+        echo "Aucun interpréteur Python disponible pour vérifier Pygame"
+        INSTALL_PYGAME=true
+        return
+    fi
+
+    if $PYTHON_BIN -c "import pygame" >/dev/null 2>&1; then
+        PYGAME_VERSION=$($PYTHON_BIN -c "import pygame; print(pygame.__version__)")
+        echo "Pygame déjà installé (avec $PYTHON_BIN version $PYGAME_VERSION)"
+        INSTALL_PYGAME=false
     else
         INSTALL_PYGAME=true
-        echo "Pygame non détecté"
+        echo "Pygame non détecté pour $PYTHON_BIN"
     fi
 }
 
@@ -183,15 +209,38 @@ install_pygame() {
 
     print_section "INSTALLATION PYGAME"
 
-    echo "Installation de Pygame..."
+    echo "Installation de Pygame pour Python 3.12 (ou python3 si non disponible)..."
 
-    python3 -m pip install --upgrade pip
-    python3 -m pip install pygame
-
-    if python3 -c "import pygame" >/dev/null 2>&1; then
-        echo "Pygame installé avec succès"
+    if command -v python3.12 >/dev/null 2>&1; then
+        PYTHON_BIN=python3.12
+    elif command -v python3 >/dev/null 2>&1; then
+        PYTHON_BIN=python3
     else
-        echo "Erreur lors de l'installation de Pygame"
+        echo "Aucun python disponible pour installer pygame" >&2
+        exit 1
+    fi
+
+    echo "Installation des dépendances système requises pour pygame..."
+    sudo apt update || true
+    sudo apt install -y --no-install-recommends \
+        libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev \
+        libportmidi-dev libfreetype6-dev libavformat-dev libswscale-dev \
+        libjpeg-dev libpng-dev libasound2-dev libpulse-dev pkg-config || true
+
+    echo "Mise à jour/installation de pip pour $PYTHON_BIN"
+    $PYTHON_BIN -m ensurepip --upgrade 2>/dev/null || true
+    $PYTHON_BIN -m pip install --upgrade pip setuptools wheel || true
+
+    echo "Installation de pygame via pip ($PYTHON_BIN -m pip install pygame)"
+    $PYTHON_BIN -m pip install pygame || {
+        echo "Tentative d'installation via compilation wheel échouée, réessayez manuellement" >&2
+        exit 1
+    }
+
+    if $PYTHON_BIN -c "import pygame" >/dev/null 2>&1; then
+        echo "Pygame installé avec succès pour $PYTHON_BIN"
+    else
+        echo "Erreur lors de l'installation de Pygame pour $PYTHON_BIN" >&2
         exit 1
     fi
 }
@@ -312,7 +361,12 @@ main() {
 print_summary() {
     print_section "SCRIPT TERMINÉ"
     echo "Java    : $(java -version 2>&1 | awk -F '"' '/version/ {print $2}')"
-    echo "Python3 : $(python3 --version)"
+    if command -v python3.12 >/dev/null 2>&1; then
+        echo "Python3.12 : $(python3.12 --version 2>&1 | awk '{print $2}')"
+    else
+        echo "Python3.12 : non installé"
+    fi
+    echo "Python3  : $(python3 --version 2>/dev/null || echo 'non installé')"
     echo "Lua     : $(lua -v 2>&1 | awk '{print $2}')"
     if command -v love >/dev/null 2>&1; then
         echo "Love2D  : $(love --version 2>&1 | head -n 1)"

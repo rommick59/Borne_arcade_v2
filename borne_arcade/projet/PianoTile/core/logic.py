@@ -5,6 +5,7 @@ from ui.layout.timerView import TimerView
 from ui.utils.color import Color
 from core.pageState import PageState
 from core.button import Button
+from core.input_normalizer import get_events
 
 class Logic:
     def __init__(self, game) -> None:
@@ -32,7 +33,7 @@ class Logic:
     
     def actionPageProfil(self):
         self.getInterface().setUpdate(False)
-        for event in pygame.event.get():
+        for event in get_events():
             direction = self.getButton().update(event, navigation_mode=True)
             if direction:    
                 if direction == "enter":
@@ -93,7 +94,7 @@ class Logic:
 
         self.getInterface().setUpdate(False)
 
-        for event in pygame.event.get():
+        for event in get_events():
             # Toujours transmettre les événements à la page
             page.handle_event(event)
 
@@ -204,7 +205,7 @@ class Logic:
 
         self.getInterface().setUpdate(False)
 
-        for event in pygame.event.get():
+        for event in get_events():
             # Toujours transmettre les événements à la page
             page.handle_event(event)
 
@@ -290,7 +291,7 @@ class Logic:
 
     def actionPageFiltrer(self):
         self.getInterface().setUpdate(False)
-        for event in pygame.event.get():
+        for event in get_events():
             direction = self.getButton().update(event, navigation_mode=True)
             if direction:
                 if direction == "enter":
@@ -329,7 +330,7 @@ class Logic:
 
     def actionPageAide(self):
         self.getInterface().setUpdate(False)
-        for event in pygame.event.get():
+        for event in get_events():
             direction = self.getButton().update(event, navigation_mode=True)
             if direction:
                 if direction == "enter":
@@ -361,7 +362,7 @@ class Logic:
                 
     def actionPageDetail(self):
         self.getInterface().setUpdate(False)
-        for event in pygame.event.get():
+        for event in get_events():
             direction = self.getButton().update(event, navigation_mode=True)
             if direction:
                 if direction == "enter":
@@ -434,17 +435,25 @@ class Logic:
                         wm.setGame(game_left)
 
                         while running:
-                            for event in pygame.event.get():
+                            for event in get_events():
                                 if event.type == pygame.QUIT:
                                     pygame.quit()
                                     exit()
                                 if event.type == pygame.KEYDOWN:
-                                    # Joueur 1 (gauche)
-                                    if event.key in (pygame.K_r, pygame.K_t, pygame.K_y, pygame.K_f, pygame.K_g):
+                                    key_char = getattr(event, 'unicode', '').lower()
+                                    # Joueur 1 (gauche) — accepter event.key et event.unicode (comme Babble_Shot)
+                                    if key_char in ('r', 't', 'y', 'f', 'g'):
+                                        col = {'r': 0, 't': 1, 'y': 2, 'f': 3, 'g': 4}.get(key_char)
+                                        game_left.checkHit(col)
+                                    elif event.key in (pygame.K_r, pygame.K_t, pygame.K_y, pygame.K_f, pygame.K_g):
                                         col = {pygame.K_r: 0, pygame.K_t: 1, pygame.K_y: 2, pygame.K_f: 3, pygame.K_g: 4}.get(event.key)
                                         game_left.checkHit(col)
+
                                     # Joueur 2 (droite)
-                                    if event.key in (pygame.K_a, pygame.K_z, pygame.K_e, pygame.K_q, pygame.K_s):
+                                    if key_char in ('a', 'z', 'e', 'q', 's'):
+                                        col = {'a': 0, 'z': 1, 'e': 2, 'q': 3, 's': 4}.get(key_char)
+                                        game_right.checkHit(col)
+                                    elif event.key in (pygame.K_a, pygame.K_z, pygame.K_e, pygame.K_q, pygame.K_s):
                                         col = {pygame.K_a: 0, pygame.K_z: 1, pygame.K_e: 2, pygame.K_q: 3, pygame.K_s: 4}.get(event.key)
                                         game_right.checkHit(col)
 
@@ -481,13 +490,9 @@ class Logic:
                         piano = game_view.getPiano()
 
                         while running:
-                            for event in pygame.event.get():
-                                if event.type == pygame.QUIT:
-                                    pygame.quit()
-                                    exit()
+                            # Récupérer une seule fois la liste d'événements
+                            events = pygame.event.get()
 
-                            keys = pygame.key.get_pressed()
-                            # En mode solo, ne considérer que les touches du Joueur 1
                             J1_KEYS = (pygame.K_r, pygame.K_t, pygame.K_y, pygame.K_f)
                             key_to_col = {
                                 pygame.K_r: 0,
@@ -495,15 +500,34 @@ class Logic:
                                 pygame.K_y: 2,
                                 pygame.K_f: 3,
                             }
-                            for key in J1_KEYS:
-                                try:
+
+                            # Traiter les événements (QUIT, KEYDOWN pour gameplay)
+                            for event in events:
+                                if event.type == pygame.QUIT:
+                                    pygame.quit()
+                                    exit()
+                                if event.type == pygame.KEYDOWN:
+                                    key_char = getattr(event, 'unicode', '').lower()
+                                    # Accept both unicode characters and pygame key constants
+                                    if key_char in ('r', 't', 'y', 'f'):
+                                        col = {'r': 0, 't': 1, 'y': 2, 'f': 3}.get(key_char)
+                                        if col is not None:
+                                            game_view.checkHit(col)
+                                    elif event.key in J1_KEYS:
+                                        col = key_to_col.get(event.key)
+                                        if col is not None:
+                                            game_view.checkHit(col)
+
+                            # Fallback: aussi permettre l'appui continu via get_pressed()
+                            try:
+                                keys = pygame.key.get_pressed()
+                                for key in J1_KEYS:
                                     if keys[key]:
                                         col = key_to_col.get(key)
                                         if col is not None:
                                             game_view.checkHit(col)
-                                except IndexError:
-                                    # Defensive: get_pressed() may be smaller on some platforms
-                                    continue
+                            except Exception:
+                                pass
 
                             wm.getWindow().fill((30, 30, 30))
 
@@ -537,7 +561,7 @@ class Logic:
 
     def actionPageAccueil(self):
         self.getInterface().setUpdate(False)
-        for event in pygame.event.get():
+        for event in get_events():
             direction = self.getButton().update(event, navigation_mode=True)
             if direction:
                 if direction == "enter":
@@ -581,7 +605,7 @@ class Logic:
     
     def actionPageMultijoueur(self):
         self.getInterface().setUpdate(False)
-        for event in pygame.event.get():
+        for event in get_events():
             direction = self.getButton().update(event, navigation_mode=True)
             if direction:    
                 if direction == "enter":
@@ -622,7 +646,7 @@ class Logic:
     
     def actionPageStatistique(self):
         self.getInterface().setUpdate(False)
-        for event in pygame.event.get():
+        for event in get_events():
             direction = self.getButton().update(event, navigation_mode=True)
             if direction:
                 if direction == "enter":

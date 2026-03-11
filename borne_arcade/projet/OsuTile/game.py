@@ -22,6 +22,7 @@ from config import (
     FULLSCREEN,
 )
 from tile import Tile
+from input_normalizer import get_events
 
 
 def _matches_key(event, key):
@@ -113,7 +114,7 @@ def end_screen(screen, font, score, total_notes, max_combo):
     pygame.display.flip()
 
     while True:
-        for event in pygame.event.get():
+        for event in get_events():
             if event.type == pygame.QUIT:
                 return "quit"
             elif event.type == pygame.KEYDOWN:
@@ -157,7 +158,7 @@ def play_map(filename):
         current_time = (time.time() - start_time) * 1000 if not paused else current_time
         screen.fill(BACKGROUND_COLOR)
 
-        for event in pygame.event.get():
+        for event in get_events():
             if event.type == pygame.QUIT:
                 return "quit"
             elif event.type == pygame.KEYDOWN:
@@ -166,7 +167,7 @@ def play_map(filename):
                     pygame.mixer.music.pause()
                     draw_pause_menu(screen, font)
                     while paused:
-                        for pe in pygame.event.get():
+                        for pe in get_events():
                             if pe.type == pygame.QUIT:
                                 return "quit"
                             elif pe.type == pygame.KEYDOWN:
