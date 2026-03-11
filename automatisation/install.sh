@@ -54,29 +54,73 @@ check_python() {
     get_target_python_version
     echo "Version cible : $LATEST_PYTHON"
 
-    if command -v python3 >/dev/null 2>&1; then
+    if command -v python3.12 >/dev/null 2>&1; then
+        CURRENT_PYTHON=$(python3.12 --version 2>&1 | awk '{print $2}')
+        echo "Python3.12 déjà installé : $CURRENT_PYTHON"
+        COMPILE_PYTHON=false
+    elif command -v python3 >/dev/null 2>&1; then
         CURRENT_PYTHON=$(python3 --version | awk '{print $2}')
-        echo "Python actuel : $CURRENT_PYTHON"
+        echo "Python3 installé (autre version) : $CURRENT_PYTHON"
+        COMPILE_PYTHON=true
     else
+        echo "Aucun Python3 détecté"
         COMPILE_PYTHON=true
     fi
 }
 
-compile_python() {
+install_python() {
     if [ "${COMPILE_PYTHON:-false}" != true ]; then
         return
     fi
 
-    print_section "COMPILATION PYTHON"
+    print_section "INSTALLATION PYTHON 3.12"
 
-    echo "⚠️  ATTENTION : Cette opération peut prendre 30-60 minutes sur Raspberry Pi"
-    
-    read -p "Continuer ? [y/N] " CONFIRM
-    if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
-        echo "Installation Python annulée."
-        COMPILE_PYTHON=false
+    if command -v python3.12 >/dev/null 2>&1; then
+        echo "python3.12 déjà présent"
+        return
     fi
 
+    echo "Tentative d'installation via apt..."
+    sudo apt update || true
+    if sudo apt install -y python3.12 python3.12-venv python3.12-dev 2>/dev/null; then
+        echo "python3.12 installé via APT"
+        return
+    fi
+
+    echo "Paquet python3.12 indisponible dans les dépôts — utilisation de pyenv en fallback"
+
+    echo "Installation des dépendances nécessaires pour compiler Python"
+    sudo apt install -y --no-install-recommends make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libffi-dev liblzma-dev tk-dev curl git || true
+
+    if [ ! -d "$HOME/.pyenv" ]; then
+        echo "Installation de pyenv dans ~/.pyenv"
+        curl https://pyenv.run | bash || true
+    fi
+
+    export PYENV_ROOT="$HOME/.pyenv"
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    if command -v pyenv >/dev/null 2>&1; then
+        eval "$(pyenv init -)" || true
+    fi
+
+    PYVER=3.12.0
+    echo "Installation de Python $PYVER via pyenv"
+    pyenv install -s $PYVER || true
+    pyenv global $PYVER || true
+
+    # créer un lien system-wide vers le binaire pyenv-installed si possible
+    PY_BIN="$PYENV_ROOT/versions/$PYVER/bin/python3.12"
+    if [ -x "$PY_BIN" ]; then
+        sudo ln -sf "$PY_BIN" /usr/local/bin/python3.12 || true
+        echo "Lien /usr/local/bin/python3.12 → $PY_BIN créé"
+    fi
+
+    if command -v python3.12 >/dev/null 2>&1; then
+        echo "python3.12 installé avec succès"
+    else
+        echo "Échec de l'installation automatique de python3.12"
+        exit 1
+    fi
 }
 
 # ==============================
@@ -188,7 +232,7 @@ main() {
     detect_arch
     install_java
     check_python
-    compile_python
+    install_python
     check_pygame
     install_pygame
     install_lua
