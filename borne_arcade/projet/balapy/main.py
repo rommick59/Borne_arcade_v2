@@ -62,6 +62,11 @@ def main():
                     pass
                 print(f"[balapy-debug] key={event.key} unicode={uni!r} resolved={keycode}")
 
+                # Allow 'r' key (or resolved K_r) to quit the game on the cabinet
+                if keycode == pygame.K_r or uni == 'r':
+                    pygame.quit()
+                    sys.exit()
+
                 game.handle_input(keycode)
 
         game.update(dt)
