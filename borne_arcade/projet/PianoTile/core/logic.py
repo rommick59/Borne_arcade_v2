@@ -486,10 +486,23 @@ class Logic:
                                     exit()
 
                             keys = pygame.key.get_pressed()
-                            for key in self.getButton().getAll().keys():
-                                if keys[key]:
-                                    game_view.checkHit(self.getButton().update(
-                                        pygame.event.Event(pygame.KEYDOWN, key=key, unicode=pygame.key.name(key))))
+                            # En mode solo, ne considérer que les touches du Joueur 1
+                            J1_KEYS = (pygame.K_r, pygame.K_t, pygame.K_y, pygame.K_f)
+                            key_to_col = {
+                                pygame.K_r: 0,
+                                pygame.K_t: 1,
+                                pygame.K_y: 2,
+                                pygame.K_f: 3,
+                            }
+                            for key in J1_KEYS:
+                                try:
+                                    if keys[key]:
+                                        col = key_to_col.get(key)
+                                        if col is not None:
+                                            game_view.checkHit(col)
+                                except IndexError:
+                                    # Defensive: get_pressed() may be smaller on some platforms
+                                    continue
 
                             wm.getWindow().fill((30, 30, 30))
 

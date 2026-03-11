@@ -18,7 +18,6 @@ class Piano:
         self.__difficulty += 1
 
     def play(self):
-        pygame.mixer.init()
         pygame.mixer.music.load(self.__filepath)
         pygame.mixer.music.play()
 
@@ -30,7 +29,6 @@ class Piano:
 
         # On estime la duree de la piste pour espacer les notes
         try:
-            pygame.mixer.init()
             track = pygame.mixer.Sound(self.__filepath)
             song_length = track.get_length()
         except Exception as exc:  # pragma: no cover - depend des codecs dispo
