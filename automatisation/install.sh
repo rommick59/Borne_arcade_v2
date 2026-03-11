@@ -118,8 +118,45 @@ install_python() {
     if command -v python3.12 >/dev/null 2>&1; then
         echo "python3.12 installé avec succès"
     else
-        echo "Échec de l'installation automatique de python3.12"
-        exit 1
+        echo "pyenv/apt n'ont pas fourni python3.12 — tentative de compilation depuis les sources"
+
+        PY_SRC_VER=${PYVER:-3.12.0}
+        TMP_DIR="/tmp/python_build_$PY_SRC_VER"
+        rm -rf "$TMP_DIR" && mkdir -p "$TMP_DIR"
+        cd "$TMP_DIR" || exit 1
+
+        PY_TARBALL_URL="https://www.python.org/ftp/python/$PY_SRC_VER/Python-$PY_SRC_VER.tgz"
+        echo "Téléchargement $PY_TARBALL_URL"
+        if ! curl -fsSL -o "Python-$PY_SRC_VER.tgz" "$PY_TARBALL_URL"; then
+            echo "Impossible de télécharger Python $PY_SRC_VER"
+            exit 1
+        fi
+
+        tar xf "Python-$PY_SRC_VER.tgz"
+        cd "Python-$PY_SRC_VER" || exit 1
+
+        echo "Configuration et compilation (peut prendre long)"
+        ./configure --enable-optimizations --with-ensurepip=install --prefix=/usr/local || true
+        make -j$(nproc) || make -j1 || true
+        sudo make altinstall || { echo "make altinstall a échoué"; exit 1; }
+        sudo ldconfig || true
+
+        # vérifier et créer lien
+        if [ -x "/usr/local/bin/python3.12" ]; then
+            sudo ln -sf /usr/local/bin/python3.12 /usr/bin/python3.12 || true
+            echo "python3.12 installé depuis les sources"
+        fi
+
+        # cleanup
+        cd /tmp || true
+        rm -rf "$TMP_DIR"
+
+        if command -v python3.12 >/dev/null 2>&1; then
+            echo "python3.12 disponible"
+        else
+            echo "Échec final: python3.12 non installé"
+            exit 1
+        fi
     fi
 }
 
