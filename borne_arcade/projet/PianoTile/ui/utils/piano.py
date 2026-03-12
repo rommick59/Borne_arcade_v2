@@ -1,10 +1,21 @@
-import pygame, random
+import pygame, random, subprocess
 from ui.utils.note import Note
+
+def _get_audio_duration(filepath):
+    try:
+        result = subprocess.run(
+            ["ffprobe", "-v", "quiet", "-show_entries", "format=duration",
+             "-of", "csv=p=0", filepath],
+            capture_output=True, text=True, timeout=5
+        )
+        return float(result.stdout.strip())
+    except Exception:
+        return 240.0  # fallback 4 minutes
 
 class Piano:
     def __init__(self, gameview):
         self.__gameView = gameview
-        self.__filepath = "./assets/music/" + self.__gameView.getWindowManager().getMusicSelect().lower().replace('play musique ', '').replace(' ', '').replace("'", '').replace(',', '') + ".mp3"
+        self.__filepath = "./assets/music/" + self.__gameView.getWindowManager().getMusicSelect().lower().replace('play musique ', '').replace(' ', '').replace("'", '').replace(',', '') + ".ogg"
         self.__difficulty = 1
         self.__notes = self.generate_notes()
 
@@ -25,17 +36,14 @@ class Piano:
         pygame.mixer.music.pause()
 
     def generate_notes(self):
-        # Génération allégée des notes : on limite la fenêtre temporelle
-        # et le nombre de notes pour réduire mémoire/CPU sur la borne (1 Go RAM).
-        song_length = 60.0
-        max_window = min(song_length, 30.0)  # ne générer que 30s max
+        song_length = _get_audio_duration(self.__filepath)
 
-        tempo_bpm = 80  # tempo réduit pour moins d'objets à l'écran
+        tempo_bpm = 80
         beat_interval = 60.0 / tempo_bpm
 
         notes = []
         current_time = 0.0
-        while current_time <= max_window:
+        while current_time <= song_length:
             # Une seule note par temps pour réduire la charge
             position = random.choice(["left", "middle", "right", "top"])
             notes.append(Note(gameview=self.__gameView, position=position, timestamp=current_time))
