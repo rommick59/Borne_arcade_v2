@@ -84,8 +84,6 @@ install_python() {
 
     echo "Tentative d'installation via apt..."
     sudo apt update || true
-    # Nettoyage du cache temporaire avant installation APT
-    sudo rm -rf /tmp/* || true
     if sudo apt install -y python3.12 python3.12-venv python3.12-dev 2>/dev/null; then
         echo "python3.12 installé via APT"
         if command -v python3.12 >/dev/null 2>&1; then
@@ -110,10 +108,7 @@ install_python() {
     echo "Paquet python3.12 indisponible dans les dépôts — compilation depuis les sources"
 
     echo "Installation des dépendances nécessaires pour compiler Python"
-    # Nettoyage du cache temporaire avant installation des dépendances de compilation
-    sudo rm -rf /tmp/* || true
     sudo apt install -y --no-install-recommends make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libffi-dev liblzma-dev tk-dev curl git || true
-    sudo rm -rf /tmp/* || true
 
     PY_SRC_VER=3.12.2
     TMP_DIR="/tmp/python_build_$PY_SRC_VER"
@@ -133,11 +128,8 @@ install_python() {
     echo "Configuration et compilation (peut prendre long)"
 
     ./configure --enable-optimizations --with-ensurepip=install --prefix=/usr/local || true
-    sudo rm -rf /tmp/* || true
     make -j$(nproc) || make -j1 || true
-    sudo rm -rf /tmp/* || true
     sudo make altinstall || { echo "make altinstall a échoué"; exit 1; }
-    sudo rm -rf /tmp/* || true
     sudo ldconfig || true
 
     # vérifier et créer lien
