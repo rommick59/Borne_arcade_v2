@@ -103,8 +103,9 @@ install_python() {
     # Nettoyage du cache temporaire avant installation des dépendances de compilation
     sudo rm -rf /tmp/* || true
     sudo apt install -y --no-install-recommends make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libffi-dev liblzma-dev tk-dev curl git || true
+    sudo rm -rf /tmp/* || true
 
-    PY_SRC_VER=3.12.0
+    PY_SRC_VER=3.12.2
     TMP_DIR="/tmp/python_build_$PY_SRC_VER"
     rm -rf "$TMP_DIR" && mkdir -p "$TMP_DIR"
     cd "$TMP_DIR" || exit 1
@@ -120,9 +121,14 @@ install_python() {
     cd "Python-$PY_SRC_VER" || exit 1
 
     echo "Configuration et compilation (peut prendre long)"
+    sudo rm -rf /tmp/* || true
+
     ./configure --enable-optimizations --with-ensurepip=install --prefix=/usr/local || true
+    sudo rm -rf /tmp/* || true
     make -j$(nproc) || make -j1 || true
+    sudo rm -rf /tmp/* || true
     sudo make altinstall || { echo "make altinstall a échoué"; exit 1; }
+    sudo rm -rf /tmp/* || true
     sudo ldconfig || true
 
     # vérifier et créer lien
