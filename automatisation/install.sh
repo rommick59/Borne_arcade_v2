@@ -93,6 +93,16 @@ install_python() {
             $PY_BIN -m ensurepip --upgrade 2>/dev/null || sudo $PY_BIN -m ensurepip --upgrade || true
             $PY_BIN -m pip install --upgrade pip setuptools wheel || sudo $PY_BIN -m pip install --upgrade pip setuptools wheel || true
             echo "pip configuré pour $PY_BIN"
+            # Vérifier que le module encodings est présent (évite 'No module named encodings')
+            if ! $PY_BIN -c "import encodings" >/dev/null 2>&1; then
+                echo "Erreur: module 'encodings' introuvable pour $PY_BIN" >&2
+                echo "--- Diagnostic python ---" >&2
+                $PY_BIN -v -c "import sys; print('PREFIX', sys.prefix); print('EXEPREFIX', sys.exec_prefix); print('PATHS', sys.path)" 2>&1 || true
+                echo "--- Contenu de /usr/local/lib/python3.12 (si présent) ---" >&2
+                ls -la /usr/local/lib/python3.12 2>/dev/null || true
+                echo "Vérifiez que l'installation a correctement installé la librairie standard." >&2
+                exit 1
+            fi
         fi
         return
     fi
@@ -147,6 +157,16 @@ install_python() {
         $PY_BIN -m ensurepip --upgrade 2>/dev/null || sudo $PY_BIN -m ensurepip --upgrade || true
         $PY_BIN -m pip install --upgrade pip setuptools wheel || sudo $PY_BIN -m pip install --upgrade pip setuptools wheel || true
         echo "pip configuré pour $PY_BIN"
+            # Vérifier que le module encodings est présent (évite 'No module named encodings')
+            if ! $PY_BIN -c "import encodings" >/dev/null 2>&1; then
+                echo "Erreur: module 'encodings' introuvable pour $PY_BIN" >&2
+                echo "--- Diagnostic python ---" >&2
+                $PY_BIN -v -c "import sys; print('PREFIX', sys.prefix); print('EXEPREFIX', sys.exec_prefix); print('PATHS', sys.path)" 2>&1 || true
+                echo "--- Contenu de /usr/local/lib/python3.12 (si présent) ---" >&2
+                ls -la /usr/local/lib/python3.12 2>/dev/null || true
+                echo "Vérifiez que l'installation a correctement installé la librairie standard." >&2
+                exit 1
+            fi
     else
         echo "Échec final: python3.12 non installé"
         exit 1
