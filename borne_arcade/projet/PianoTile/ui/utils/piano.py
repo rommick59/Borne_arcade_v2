@@ -15,7 +15,7 @@ def _get_audio_duration(filepath):
 class Piano:
     def __init__(self, gameview):
         self.__gameView = gameview
-        self.__filepath = "./assets/music/" + self.__gameView.getWindowManager().getMusicSelect().lower().replace('play musique ', '').replace(' ', '').replace("'", '').replace(',', '') + ".ogg"
+        self.__filepath = "./assets/music/" + self.__gameView.getWindowManager().getMusicSelect().lower().replace('play musique ', '').replace(' ', '').replace("'", '').replace(',', '') + ".mp3"
         self.__difficulty = 1
         self.__notes = self.generate_notes()
 

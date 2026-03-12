@@ -129,7 +129,7 @@ def end_screen(screen, font, score, total_notes, max_combo):
 def play_map(filename):
     beatmap = load_beatmap(filename)
     tiles = [Tile(lane, time) for lane, time in beatmap]
-    audio_file = os.path.join(ASSETS_FOLDER, os.path.splitext(filename)[0] + ".ogg")
+    audio_file = os.path.join(ASSETS_FOLDER, os.path.splitext(filename)[0] + ".mp3")
 
     flags = pygame.HWSURFACE | pygame.DOUBLEBUF
     if FULLSCREEN :
@@ -138,7 +138,6 @@ def play_map(filename):
     clock = pygame.time.Clock()
     font = pygame.font.SysFont(None, 48)
 
-    pygame.mixer.pre_init(22050, -16, 2, 512)
     pygame.mixer.init()
     if os.path.exists(audio_file):
         pygame.mixer.music.load(audio_file)
