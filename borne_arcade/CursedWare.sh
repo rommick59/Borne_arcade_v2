@@ -9,8 +9,15 @@ LOCAL_LOVE_LIBDIR="$ROOT_DIR/love-11.5/src/.libs"
 cd "$GAME_DIR" || exit 1
 
 # Priorite au runtime local 11.5 (corrige le bug d'alignement observe en 11.3).
-# On execute directement le binaire .libs avec son LD_LIBRARY_PATH.
-if [[ -x "$LOCAL_LOVE_BIN" ]]; then
+# On verifie la compatibilite d'architecture avant d'executer le binaire local.
+_love_arch=$(file "$LOCAL_LOVE_BIN" 2>/dev/null)
+case "$(uname -m)" in
+	x86_64|i386|i686) _compat_pattern="Intel 80386\|x86-64" ;;
+	aarch64|arm64)    _compat_pattern="aarch64\|AArch64" ;;
+	arm*)             _compat_pattern="ARM," ;;
+	*)                _compat_pattern="__NO_MATCH__" ;;
+esac
+if [[ -x "$LOCAL_LOVE_BIN" ]] && echo "$_love_arch" | grep -q "$_compat_pattern"; then
 	LD_LIBRARY_PATH="$LOCAL_LOVE_LIBDIR${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
 		"$LOCAL_LOVE_BIN" .
 	exit $?
