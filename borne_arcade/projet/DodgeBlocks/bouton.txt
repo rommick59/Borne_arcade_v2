@@ -1,0 +1,5 @@
+Déplacements : < > (ou Q/D)
+Esquive : automatique
+Pause : P
+Quitter : Echap
+Objectif : survie le plus longtmps possible 

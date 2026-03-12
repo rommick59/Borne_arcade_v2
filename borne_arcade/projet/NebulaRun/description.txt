@@ -1,0 +1,8 @@
+NebulaRun : evitement spatial Alexandre Damman, 2026
+Survis aux meteores le plus longtemps possible
+Score = temps de survie
+
+Commandes rapides
+- Gauche / Droite : deplacement
+- R : recommencer
+- Q ou Echap : quitter

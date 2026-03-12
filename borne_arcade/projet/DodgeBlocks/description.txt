@@ -1,0 +1,9 @@
+DodgeBlocks (Python / Pygame) Samy Berghol, 2026
+
+Un mini-jeu d’esquive : déplace ton carré pour éviter les blocs qui tombent.
+Le score augmente avec le temps. Plus tu survis, mieux c’est !
+
+Commandes :
+- Joystick gauche/droite : déplacer le joueur
+- Bouton A : démarrer / recommencer
+- ESC : quitter
