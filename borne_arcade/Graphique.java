@@ -280,4 +280,39 @@ public class Graphique {
 	public static void afficherTexte(int valeur){
 		f.ajouter(tableau[valeur].getTexte());
 	}
+
+	/**
+	 * Relâche le fullscreen exclusif et masque la fenêtre avant de lancer un jeu.
+	 * Indispensable pour que les jeux (love2D, pygame) puissent créer leur propre fenêtre.
+	 */
+	public static void masquerFenetre() {
+		try {
+			javax.swing.SwingUtilities.invokeAndWait(() -> {
+				java.awt.GraphicsEnvironment
+					.getLocalGraphicsEnvironment()
+					.getScreenDevices()[0]
+					.setFullScreenWindow(null);
+				f.setVisible(false);
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Réaffiche la fenêtre en fullscreen exclusif après la fin d'un jeu.
+	 */
+	public static void afficherFenetre() {
+		try {
+			javax.swing.SwingUtilities.invokeAndWait(() -> {
+				java.awt.GraphicsEnvironment
+					.getLocalGraphicsEnvironment()
+					.getScreenDevices()[0]
+					.setFullScreenWindow(f);
+				f.setVisible(true);
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

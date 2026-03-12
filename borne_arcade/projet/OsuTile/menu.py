@@ -50,6 +50,8 @@ def neon_text(surface, text, font, pos, main_color, glow_color, glow_size=4):
 
 
 def run_menu():
+    # Préinitialisation du mixer avec un grand buffer pour éviter le lag audio sur Raspberry Pi
+    pygame.mixer.pre_init(44100, -16, 2, 2048)
     pygame.init()
     flags = pygame.FULLSCREEN if FULLSCREEN else 0
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT),flags)

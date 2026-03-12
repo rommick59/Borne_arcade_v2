@@ -27,15 +27,23 @@ public class Pointeur {
 	    //System.out.println(Graphique.tableau[getValue()].getChemin());
 	    try {
 		Graphique.stopMusiqueFond();
-		Process process = Runtime.getRuntime().exec("./"+Graphique.tableau[getValue()].getNom()+".sh");
+		// Relâche le fullscreen exclusif pour que le jeu puisse créer sa fenêtre
+		Graphique.masquerFenetre();
+		try { Thread.sleep(300); } catch(InterruptedException ie) {}
+
+		ProcessBuilder pb = new ProcessBuilder("./"+Graphique.tableau[getValue()].getNom()+".sh");
+		pb.inheritIO();
+		Process process = pb.start();
 		process.waitFor();		//ajouté afin d'attendre la fin de l'exécution du jeu pour reprendre le contrôle sur le menu
+
+		// Réaffiche la fenêtre du menu en fullscreen exclusif
+		Graphique.afficherFenetre();
 		Graphique.lectureMusiqueFond();
 	    } catch (IOException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 	    } catch(Exception e){	//on catche toutes les exceptions, nécessaire pour le waitFor()
-			e.printStackTrace();
-		}
+		e.printStackTrace();
+	    }
 
 	    //System.out.println("le process sur "+Graphique.tableau[getValue()].getChemin()+" est bien lancé");
 	}

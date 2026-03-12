@@ -95,7 +95,7 @@ class Game:
 if __name__ == "__main__":
     # Préinitialisation du mixer pour réduire les saccades audio (buffer plus grand)
     try:
-        pygame.mixer.pre_init(44100, -16, 2, 512)
+        pygame.mixer.pre_init(44100, -16, 2, 2048)
     except Exception:
         pass
 
