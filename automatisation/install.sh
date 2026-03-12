@@ -111,7 +111,7 @@ install_python() {
     sudo apt install -y --no-install-recommends make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libffi-dev liblzma-dev tk-dev curl git || true
 
     PY_SRC_VER=3.12.2
-    TMP_DIR="/tmp/python_build_$PY_SRC_VER"
+    TMP_DIR="$HOME/python_build_$PY_SRC_VER"
     rm -rf "$TMP_DIR" && mkdir -p "$TMP_DIR"
     cd "$TMP_DIR" || exit 1
 
@@ -139,7 +139,7 @@ install_python() {
     fi
 
     # cleanup
-    cd /tmp || true
+    cd "$HOME" || true
     rm -rf "$TMP_DIR"
 
     if command -v python3.12 >/dev/null 2>&1; then
