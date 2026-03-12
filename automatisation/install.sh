@@ -131,7 +131,6 @@ install_python() {
     cd "Python-$PY_SRC_VER" || exit 1
 
     echo "Configuration et compilation (peut prendre long)"
-    sudo rm -rf /tmp/* || true
 
     ./configure --enable-optimizations --with-ensurepip=install --prefix=/usr/local || true
     sudo rm -rf /tmp/* || true
