@@ -31,6 +31,8 @@ install_java() {
         echo "Java non trouvé. Installation..."
         sudo apt update
         sudo dpkg --configure -a
+        # Nettoyage du cache temporaire avant installation pour éviter les problèmes d'espace
+        sudo rm -rf /tmp/* || true
         sudo apt install -y default-jdk
         echo "Java installé : $(java -version 2>&1 | awk -F '"' '/version/ {print $2}')"
     fi
@@ -82,6 +84,8 @@ install_python() {
 
     echo "Tentative d'installation via apt..."
     sudo apt update || true
+    # Nettoyage du cache temporaire avant installation APT
+    sudo rm -rf /tmp/* || true
     if sudo apt install -y python3.12 python3.12-venv python3.12-dev 2>/dev/null; then
         echo "python3.12 installé via APT"
         if command -v python3.12 >/dev/null 2>&1; then
@@ -93,84 +97,53 @@ install_python() {
         return
     fi
 
-    echo "Paquet python3.12 indisponible dans les dépôts — utilisation de pyenv en fallback"
+    echo "Paquet python3.12 indisponible dans les dépôts — compilation depuis les sources"
 
     echo "Installation des dépendances nécessaires pour compiler Python"
+    # Nettoyage du cache temporaire avant installation des dépendances de compilation
+    sudo rm -rf /tmp/* || true
     sudo apt install -y --no-install-recommends make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libffi-dev liblzma-dev tk-dev curl git || true
 
-    if [ ! -d "$HOME/.pyenv" ]; then
-        echo "Installation de pyenv dans ~/.pyenv"
-        curl https://pyenv.run | bash || true
+    PY_SRC_VER=3.12.0
+    TMP_DIR="/tmp/python_build_$PY_SRC_VER"
+    rm -rf "$TMP_DIR" && mkdir -p "$TMP_DIR"
+    cd "$TMP_DIR" || exit 1
+
+    PY_TARBALL_URL="https://www.python.org/ftp/python/$PY_SRC_VER/Python-$PY_SRC_VER.tgz"
+    echo "Téléchargement $PY_TARBALL_URL"
+    if ! curl -fsSL -o "Python-$PY_SRC_VER.tgz" "$PY_TARBALL_URL"; then
+        echo "Impossible de télécharger Python $PY_SRC_VER"
+        exit 1
     fi
 
-    export PYENV_ROOT="$HOME/.pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    if command -v pyenv >/dev/null 2>&1; then
-        eval "$(pyenv init -)" || true
+    tar xf "Python-$PY_SRC_VER.tgz"
+    cd "Python-$PY_SRC_VER" || exit 1
+
+    echo "Configuration et compilation (peut prendre long)"
+    ./configure --enable-optimizations --with-ensurepip=install --prefix=/usr/local || true
+    make -j$(nproc) || make -j1 || true
+    sudo make altinstall || { echo "make altinstall a échoué"; exit 1; }
+    sudo ldconfig || true
+
+    # vérifier et créer lien
+    if [ -x "/usr/local/bin/python3.12" ]; then
+        sudo ln -sf /usr/local/bin/python3.12 /usr/bin/python3.12 || true
+        echo "python3.12 installé depuis les sources"
     fi
 
-    PYVER=3.12.0
-    echo "Installation de Python $PYVER via pyenv"
-    pyenv install -s $PYVER || true
-    pyenv global $PYVER || true
-
-    # créer un lien system-wide vers le binaire pyenv-installed si possible
-    PY_BIN="$PYENV_ROOT/versions/$PYVER/bin/python3.12"
-    if [ -x "$PY_BIN" ]; then
-        sudo ln -sf "$PY_BIN" /usr/local/bin/python3.12 || true
-        echo "Lien /usr/local/bin/python3.12 → $PY_BIN créé"
-    fi
+    # cleanup
+    cd /tmp || true
+    rm -rf "$TMP_DIR"
 
     if command -v python3.12 >/dev/null 2>&1; then
-        echo "python3.12 installé avec succès"
+        echo "python3.12 disponible"
         PY_BIN=python3.12
         $PY_BIN -m ensurepip --upgrade 2>/dev/null || sudo $PY_BIN -m ensurepip --upgrade || true
         $PY_BIN -m pip install --upgrade pip setuptools wheel || sudo $PY_BIN -m pip install --upgrade pip setuptools wheel || true
         echo "pip configuré pour $PY_BIN"
     else
-        echo "pyenv/apt n'ont pas fourni python3.12 — tentative de compilation depuis les sources"
-
-        PY_SRC_VER=${PYVER:-3.12.0}
-        TMP_DIR="/tmp/python_build_$PY_SRC_VER"
-        rm -rf "$TMP_DIR" && mkdir -p "$TMP_DIR"
-        cd "$TMP_DIR" || exit 1
-
-        PY_TARBALL_URL="https://www.python.org/ftp/python/$PY_SRC_VER/Python-$PY_SRC_VER.tgz"
-        echo "Téléchargement $PY_TARBALL_URL"
-        if ! curl -fsSL -o "Python-$PY_SRC_VER.tgz" "$PY_TARBALL_URL"; then
-            echo "Impossible de télécharger Python $PY_SRC_VER"
-            exit 1
-        fi
-
-        tar xf "Python-$PY_SRC_VER.tgz"
-        cd "Python-$PY_SRC_VER" || exit 1
-
-        echo "Configuration et compilation (peut prendre long)"
-        ./configure --enable-optimizations --with-ensurepip=install --prefix=/usr/local || true
-        make -j$(nproc) || make -j1 || true
-        sudo make altinstall || { echo "make altinstall a échoué"; exit 1; }
-        sudo ldconfig || true
-
-        # vérifier et créer lien
-        if [ -x "/usr/local/bin/python3.12" ]; then
-            sudo ln -sf /usr/local/bin/python3.12 /usr/bin/python3.12 || true
-            echo "python3.12 installé depuis les sources"
-        fi
-
-        # cleanup
-        cd /tmp || true
-        rm -rf "$TMP_DIR"
-
-        if command -v python3.12 >/dev/null 2>&1; then
-            echo "python3.12 disponible"
-            PY_BIN=python3.12
-            $PY_BIN -m ensurepip --upgrade 2>/dev/null || sudo $PY_BIN -m ensurepip --upgrade || true
-            $PY_BIN -m pip install --upgrade pip setuptools wheel || sudo $PY_BIN -m pip install --upgrade pip setuptools wheel || true
-            echo "pip configuré pour $PY_BIN"
-        else
-            echo "Échec final: python3.12 non installé"
-            exit 1
-        fi
+        echo "Échec final: python3.12 non installé"
+        exit 1
     fi
 }
 
@@ -222,6 +195,8 @@ install_pygame() {
 
     echo "Installation des dépendances système requises pour pygame..."
     sudo apt update || true
+    # Nettoyage du cache temporaire avant installation des dépendances Pygame
+    sudo rm -rf /tmp/* || true
     sudo apt install -y --no-install-recommends \
         libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev \
         libportmidi-dev libfreetype6-dev libavformat-dev libswscale-dev \
@@ -256,6 +231,8 @@ install_lua() {
         echo "Lua installé : $(lua -v 2>&1 | awk '{print $2}')"
     else
         sudo apt update
+        # Nettoyage avant installation de Lua
+        sudo rm -rf /tmp/* || true
         sudo apt install -y lua5.4
         echo "Lua installé : $(lua -v 2>&1 | awk '{print $2}')"
     fi
@@ -273,6 +250,8 @@ install_love() {
     else
         echo "Love2D non trouvé. Installation..."
         sudo apt update
+        # Nettoyage avant installation de Love2D
+        sudo rm -rf /tmp/* || true
         sudo apt install -y love
         echo "Love2D installé : $(love --version 2>&1 | head -n 1)"
     fi
@@ -295,6 +274,8 @@ install_mg2d() {
     fi
 
     if ! command -v git >/dev/null 2>&1; then
+        # Nettoyage avant installation de git
+        sudo rm -rf /tmp/* || true
         sudo apt install -y git
     fi
 
@@ -312,6 +293,9 @@ install_mg2d() {
 
 main() {
     print_section "VÉRIFICATION DES DÉPENDANCES"
+
+    # Nettoyage cache temporaire pour libérer de l'espace avant l'installation
+    sudo rm -rf /tmp/* || true
 
     SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
@@ -355,6 +339,9 @@ main() {
 
     # === 3. Lancer la vérification Python ===
     python3 "$SCRIPT_DIR/scripts/manager.py" --force
+
+    # === 4. Nettoyage du cache temporaire ===
+    sudo rm -rf /tmp/*
 
 }
 
