@@ -143,6 +143,9 @@ install_python() {
     sudo rm -rf "$TMP_DIR"
 
     if command -v python3.12 >/dev/null 2>&1; then
+        sudo rm -rf "$HOME/python_build_"* || true
+        sudo rm -rf /usr/local/lib/python3.12 || true
+        sudo rm -f /usr/local/bin/python3.12 || true
         echo "python3.12 disponible"
         PY_BIN=python3.12
         $PY_BIN -m ensurepip --upgrade 2>/dev/null || sudo $PY_BIN -m ensurepip --upgrade || true
