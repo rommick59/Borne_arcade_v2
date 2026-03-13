@@ -139,8 +139,8 @@ install_python() {
     fi
 
     # cleanup
-    cd "$HOME" || true
-    rm -rf "$TMP_DIR"
+    cd /home || true
+    sudo rm -rf "$TMP_DIR"
 
     if command -v python3.12 >/dev/null 2>&1; then
         echo "python3.12 disponible"
