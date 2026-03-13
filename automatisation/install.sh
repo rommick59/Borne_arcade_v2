@@ -23,30 +23,39 @@ detect_arch() {
 
 install_java() {
     print_section "VÉRIFICATION JAVA"
-
     if command -v java >/dev/null 2>&1; then
         CURRENT_JAVA=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
         echo "Java déjà installé : version $CURRENT_JAVA"
-        # Si Maven ou OpenJFX absent, on NE les installe PAS automatiquement
-        # (installation automatique désactivée pour éviter modifications système imprévues)
-        if ! command -v mvn >/dev/null 2>&1 || ! dpkg -s openjfx >/dev/null 2>&1; then
-            echo "Maven/OpenJFX manquant. Installation automatique désactivée — installez manuellement si nécessaire."
-            if command -v mvn >/dev/null 2>&1; then
-                echo "Maven détecté : $(mvn -v | head -n1)"
-            else
-                echo "Maven non installé"
-            fi
-            if dpkg -s openjfx >/dev/null 2>&1; then
-                echo "OpenJFX installé"
-            else
-                echo "OpenJFX non installé"
-            fi
+        # Installer Maven/OpenJFX si manquants
+        MISSING_PACKAGES=()
+        if ! command -v mvn >/dev/null 2>&1; then
+            MISSING_PACKAGES+=(maven)
+        fi
+        if ! dpkg -s openjfx >/dev/null 2>&1; then
+            MISSING_PACKAGES+=(openjfx)
+        fi
+        if [ ${#MISSING_PACKAGES[@]} -gt 0 ]; then
+            echo "Paquets manquants: ${MISSING_PACKAGES[*]}. Tentative d'installation via apt..."
+            sudo apt update || true
+            sudo apt install -y "${MISSING_PACKAGES[@]}" || echo "Échec lors de l'installation de ${MISSING_PACKAGES[*]} (ignorer si non nécessaire)"
         fi
     else
-        echo "Java non trouvé. Installation automatique d'OpenJDK/Maven/OpenJFX désactivée."
-        echo "Si vous avez besoin de Java pour certains jeux, installez manuellement les paquets suivants : openjdk-17-jdk, maven, openjfx"
-        echo "Exemple (manuel) : sudo apt update && sudo apt install -y openjdk-17-jdk maven openjfx"
-        # Ne pas tenter l'installation automatique ici — laisser l'administrateur/user décider
+        echo "Java non trouvé. Installation via apt..."
+        sudo apt update || true
+        sudo dpkg --configure -a || true
+        # Nettoyage du cache temporaire avant installation pour éviter les problèmes d'espace
+        sudo rm -rf /tmp/* || true
+        sudo apt install -y openjdk-17-jdk maven openjfx || {
+            echo "Échec de l'installation automatique de Java/Maven/OpenJFX. Essayez manuellement." >&2
+            return 1
+        }
+        echo "Java installé : $(java -version 2>&1 | awk -F '"' '/version/ {print $2}')"
+        if command -v mvn >/dev/null 2>&1; then
+            echo "Maven installé : $(mvn -v | head -n1)"
+        fi
+        if dpkg -s openjfx >/dev/null 2>&1; then
+            echo "OpenJFX installé"
+        fi
     fi
 }
 
@@ -322,6 +331,13 @@ install_mg2d() {
 # ==============================
 # MAIN
 # ==============================
+
+## Allow running only Java installation with --install-java-only
+if [ "$1" = "--install-java-only" ]; then
+    detect_arch
+    install_java
+    exit 0
+fi
 
 main() {
     print_section "VÉRIFICATION DES DÉPENDANCES"
