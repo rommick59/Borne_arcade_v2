@@ -19,3 +19,15 @@ RIGHT_UP = pygame.K_UP
 RIGHT_DOWN = pygame.K_DOWN
 RIGHT_SOLDIER = pygame.K_h
 RIGHT_TANK = pygame.K_r
+
+# --- Char-based bindings (utile pour bornes qui renvoient des caractères)
+# Sets of single-character strings (lowercase). Leave empty sets if not used.
+LEFT_UP_KEYS = {"a"}
+LEFT_DOWN_KEYS = {"z"}
+LEFT_SOLDIER_KEYS = {"f"}
+LEFT_TANK_KEYS = {"g"}
+
+RIGHT_UP_KEYS = set()
+RIGHT_DOWN_KEYS = set()
+RIGHT_SOLDIER_KEYS = {"h"}
+RIGHT_TANK_KEYS = {"r"}

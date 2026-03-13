@@ -7,8 +7,16 @@ pygame.init()
 SCREEN_WIDTH = 1024
 SCREEN_HEIGHT = 600
 
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Age Of War")
+# --- Fullscreen logical rendering: create a fullscreen display surface
+# and render the game to a smaller logical surface then scale to fit.
+DISPLAY_INFO = pygame.display.Info()
+DISPLAY_W = DISPLAY_INFO.current_w if DISPLAY_INFO.current_w > 0 else SCREEN_WIDTH
+DISPLAY_H = DISPLAY_INFO.current_h if DISPLAY_INFO.current_h > 0 else SCREEN_HEIGHT
+display_surface = pygame.display.set_mode((DISPLAY_W, DISPLAY_H), pygame.FULLSCREEN)
+pygame.display.set_caption("AgeOfWar 2 Joueurs - Flèches")
+
+# Logical game surface (kept at original game resolution)
+screen = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 # ---- ASSETS ----
 
@@ -31,9 +39,6 @@ soldier_blue_img = pygame.transform.scale(soldier_blue_img, UNIT_SIZE)
 soldier_red_img = pygame.transform.scale(soldier_red_img, UNIT_SIZE)
 
 # --- Initialisation écran ---
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("AgeOfWar 2 Joueurs - Flèches")
-
 FPS = 60
 clock = pygame.time.Clock()
 
@@ -261,6 +266,8 @@ def main():
     run = True
     gold_timer = 0
     passive_gold_rate = 10
+    # set to track character keys pressed (for arcade input that sends characters)
+    char_keys_pressed: set[str] = set()
 
     while run:
         dt = clock.tick(FPS)
@@ -270,43 +277,54 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+            elif event.type == pygame.KEYDOWN:
+                # capture printable character keys (lowercased)
+                if hasattr(event, "unicode") and event.unicode:
+                    char = event.unicode.lower()
+                    if char:
+                        char_keys_pressed.add(char)
+            elif event.type == pygame.KEYUP:
+                if hasattr(event, "unicode") and event.unicode:
+                    char = event.unicode.lower()
+                    if char and char in char_keys_pressed:
+                        char_keys_pressed.discard(char)
 
         keys = pygame.key.get_pressed()
         current_time = pygame.time.get_ticks()
 
         # ---- Joueur gauche ----
-        if keys[pygame.K_f] and current_time - last_spawn_left > config.SPAWN_DELAY:
+        if (keys[config.LEFT_SOLDIER] or any(c in char_keys_pressed for c in config.LEFT_SOLDIER_KEYS)) and current_time - last_spawn_left > config.SPAWN_DELAY:
             spawn_unit("left", "soldier")
             last_spawn_left = current_time
 
-        if keys[pygame.K_g] and current_time - last_spawn_left > config.SPAWN_DELAY:
+        if (keys[config.LEFT_TANK] or any(c in char_keys_pressed for c in config.LEFT_TANK_KEYS)) and current_time - last_spawn_left > config.SPAWN_DELAY:
             spawn_unit("left", "tank")
             last_spawn_left = current_time
 
 
         # ---- Joueur droite ----
-        if keys[pygame.K_h] and current_time - last_spawn_right > config.SPAWN_DELAY:
+        if (keys[config.RIGHT_SOLDIER] or any(c in char_keys_pressed for c in config.RIGHT_SOLDIER_KEYS)) and current_time - last_spawn_right > config.SPAWN_DELAY:
             spawn_unit("right", "soldier")
             last_spawn_right = current_time
 
-        if keys[pygame.K_r] and current_time - last_spawn_right > config.SPAWN_DELAY:
+        if (keys[config.RIGHT_TANK] or any(c in char_keys_pressed for c in config.RIGHT_TANK_KEYS)) and current_time - last_spawn_right > config.SPAWN_DELAY:
             spawn_unit("right", "tank")
             last_spawn_right = current_time
 
         # déplacement flèche joueur gauche
         
-        if keys[pygame.K_a]:
+        if keys[config.LEFT_UP] or any(c in char_keys_pressed for c in config.LEFT_UP_KEYS):
             move_arrow("left", -1)
 
-        if keys[pygame.K_z]:
+        if keys[config.LEFT_DOWN] or any(c in char_keys_pressed for c in config.LEFT_DOWN_KEYS):
             move_arrow("left", 1)
 
 
         # déplacement flèche joueur droite
-        if keys[pygame.K_UP]:
+        if keys[config.RIGHT_UP] or any(c in char_keys_pressed for c in config.RIGHT_UP_KEYS):
             move_arrow("right", -1)
 
-        if keys[pygame.K_DOWN]:
+        if keys[config.RIGHT_DOWN] or any(c in char_keys_pressed for c in config.RIGHT_DOWN_KEYS):
             move_arrow("right", 1)
 
         # --- Argent passif ---
@@ -323,6 +341,16 @@ def main():
         draw_ui()
         draw_units()
         draw_arrows()
+
+        # --- Render logical screen to actual display (scale to fit fullscreen)
+        scale = min(DISPLAY_W / SCREEN_WIDTH, DISPLAY_H / SCREEN_HEIGHT)
+        new_w = int(SCREEN_WIDTH * scale)
+        new_h = int(SCREEN_HEIGHT * scale)
+        scaled = pygame.transform.smoothscale(screen, (new_w, new_h))
+        x = (DISPLAY_W - new_w) // 2
+        y = (DISPLAY_H - new_h) // 2
+        display_surface.fill((0, 0, 0))
+        display_surface.blit(scaled, (x, y))
         pygame.display.flip()
 
         # --- Vérification victoire ---
