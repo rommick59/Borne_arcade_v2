@@ -1,0 +1,6 @@
+LaneRunner - Giovanni LOSAT 2025
+
+Esquive les robots qui se trouvent sur les voies, 
+tire vite et survis le plus longtemps possible.
+Atteins l'objectif de score pour gagner 
+en ayant une limite d'élimination.

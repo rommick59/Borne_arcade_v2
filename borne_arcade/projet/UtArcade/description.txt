@@ -1,0 +1,3 @@
+Un jeu d'arcade à l'image d'un combat du jeu Undertale !
+Controllez votre âme pour esquiver les attaques environnantes et gagner des points.
+Attention, au bout de 5 coups subis, c'est Game Over !
