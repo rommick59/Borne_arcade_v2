@@ -277,12 +277,12 @@ def main():
     pygame.display.set_caption("DodgeBlocks")
     flags = pygame.FULLSCREEN if FORCE_FULLSCREEN else 0
 
-    # Si on demande le plein écran, récupérer la résolution actuelle de la borne
-    # et adapter les constantes globales WIDTH/HEIGHT pour que tout le jeu s'aligne.
-    global WIDTH, HEIGHT
+    # Si on demande le plein écran, garder la résolution logique originale
+    # (WIDTH x HEIGHT) et utiliser le flag SCALED pour que SDL mette à l'échelle
+    # vers la résolution de la borne.
     if flags & pygame.FULLSCREEN:
-        info = pygame.display.Info()
-        WIDTH, HEIGHT = info.current_w, info.current_h
+        if hasattr(pygame, 'SCALED'):
+            flags |= pygame.SCALED
 
     screen = pygame.display.set_mode((WIDTH, HEIGHT), flags)
     clock = pygame.time.Clock()
