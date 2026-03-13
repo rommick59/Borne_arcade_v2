@@ -1,7 +1,5 @@
 #!/bin/bash
-set -euo pipefail
-
-cd "$(dirname "$0")/projet/StarDodger"
-
-# Lancement du jeu
-java -cp . Main
+xdotool mousemove 1280 1024
+cd projet/StarDodger
+touch highscore
+java -cp .:../..:$HOME Main
