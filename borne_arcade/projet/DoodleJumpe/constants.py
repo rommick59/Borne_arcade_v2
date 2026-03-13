@@ -99,6 +99,7 @@ KEY_PAUSE = {
 KEY_BACK = {
     pygame.K_y,
     pygame.K_QUOTE,
+    pygame.K_6,
     pygame.K_4,
     pygame.K_ESCAPE,
 }
@@ -106,5 +107,6 @@ KEY_BACK_MENU = {
     pygame.K_ESCAPE,
     pygame.K_y,
     pygame.K_QUOTE,
+    pygame.K_6,
     pygame.K_4,
 }

@@ -37,7 +37,7 @@ RULE_LINES = (
     "- Gauche / Droite (ou Q / D): deplacement.",
     "- F (ou Entree): valider et tirer en partie.",
     "- T: pause pendant la partie.",
-    "- R / 4 / Echap: retour menu.",
+    "- Y / 4 / Echap: retour menu.",
 )
 
 
@@ -80,7 +80,7 @@ class DoodleJumpeApp:
         pygame.draw.line(self.hud_surface, CARD_BORDER, (0, 90), (SCREEN_W, 90), 2)
         self.hud_tip_surface = self.render_cached(
             self.font_small,
-            "Gauche/Droite ou Q/D: deplacer   F: tirer   T: pause   R/4: menu",
+            "Gauche/Droite ou Q/D: deplacer   F: tirer   T: pause   Y/4: menu",
             TEXT_DIM,
         )
         self.hud_tip_pos = (SCREEN_W // 2 - self.hud_tip_surface.get_width() // 2, SCREEN_H - 34)
@@ -715,7 +715,7 @@ class DoodleJumpeApp:
 
         tip = self.render_cached(
             self.font_small,
-            "Haut/Bas: menu   F/Entree: valider   R/4/Echap: quitter",
+            "Haut/Bas: menu   F/Entree: valider   Y/4/Echap: quitter",
             TEXT_DIM,
         )
         self.screen.blit(tip, (SCREEN_W // 2 - tip.get_width() // 2, SCREEN_H - 56))
@@ -736,7 +736,7 @@ class DoodleJumpeApp:
 
         tip = self.render_cached(
             self.font_small,
-            "F/Entree pour retour menu   R/4/Echap pour retour menu",
+            "F/Entree pour retour menu   Y/4/Echap pour retour menu",
             TEXT_DIM,
         )
         self.screen.blit(tip, (SCREEN_W // 2 - tip.get_width() // 2, SCREEN_H - 46))
@@ -760,7 +760,7 @@ class DoodleJumpeApp:
                 txt = self.render_cached(self.font, line, TEXT_MAIN)
                 self.screen.blit(txt, (SCREEN_W // 2 - 176, 138 + i * 42))
 
-        tip = self.render_cached(self.font_small, "F/Entree pour valider   R/4/Echap pour retour", TEXT_DIM)
+        tip = self.render_cached(self.font_small, "F/Entree pour valider   Y/4/Echap pour retour", TEXT_DIM)
         self.screen.blit(tip, (SCREEN_W // 2 - tip.get_width() // 2, SCREEN_H - 56))
 
     def draw_pause(self):
@@ -808,7 +808,7 @@ class DoodleJumpeApp:
             "Haut/Bas: lettre | Gauche/Droite: position | F/Entree: valider",
             TEXT_MAIN,
         )
-        tip2 = self.render_cached(self.font_small, "R/4/Echap: ignorer et retour menu", TEXT_DIM)
+        tip2 = self.render_cached(self.font_small, "Y/4/Echap: ignorer et retour menu", TEXT_DIM)
         self.screen.blit(tip, (SCREEN_W // 2 - tip.get_width() // 2, 374))
         self.screen.blit(tip2, (SCREEN_W // 2 - tip2.get_width() // 2, 404))
 
