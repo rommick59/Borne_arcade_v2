@@ -1,0 +1,95 @@
+{
+  "solo": [
+    {
+      "name": "AAA",
+      "score": 430
+    },
+    {
+      "name": "ZZZ",
+      "score": 160
+    },
+    {
+      "name": "ZZZ",
+      "score": 135
+    },
+    {
+      "name": "ZZZ",
+      "score": 120
+    },
+    {
+      "name": "ZAZ",
+      "score": 120
+    },
+    {
+      "name": "BBB",
+      "score": 80
+    },
+    {
+      "name": "AZZ",
+      "score": 80
+    },
+    {
+      "name": "XXX",
+      "score": 36
+    },
+    {
+      "name": "AAA",
+      "score": 0
+    },
+    {
+      "name": "AAA",
+      "score": 0
+    }
+  ],
+  "vs": [
+    {
+      "name1": "AAA",
+      "score1": 0,
+      "name2": "ZZZ",
+      "score2": 120,
+      "total": 120
+    },
+    {
+      "name1": "AAA",
+      "score1": 0,
+      "name2": "BBB",
+      "score2": 80,
+      "total": 80
+    },
+    {
+      "name1": "AAA",
+      "score1": 0,
+      "name2": "AZZ",
+      "score2": 80,
+      "total": 80
+    },
+    {
+      "name1": "AAA",
+      "score1": 0,
+      "name2": "ZZZ",
+      "score2": 160,
+      "total": 160
+    },
+    {
+      "name1": "ZZZ",
+      "score1": 135,
+      "name2": "UAA",
+      "score2": 0,
+      "total": 135
+    },
+    {
+      "name1": "XXX",
+      "score1": 36,
+      "name2": "YAA",
+      "score2": 0,
+      "total": 36
+    },
+    {
+      "name1": "AAA",
+      "score1": 430,
+      "name2": "AAA",
+      "score2": 0,
+      "total": 430
+    }
+  ]
+}

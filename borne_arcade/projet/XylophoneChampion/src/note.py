@@ -1,0 +1,175 @@
+"""
+Classe Note et constantes de jeu pour Xylophone Champion.
+
+Auteurs: Julien Behani, Enzo Fournier - 2026
+"""
+
+# Nombre de pistes
+NUM_LANES = 4
+
+# Couleurs des pistes, inspirées d'un xylophone (rouge → bleu)
+LANE_COLORS = [
+    (230,  60,  60),   # Rouge
+    (230, 150,  50),   # Orange
+    (220, 220,  50),   # Vert
+    ( 60, 190,  70),   # Bleu
+]
+
+# Touches associées à chaque piste — boutons J1 de la borne arcade
+# Rangée basse : R T (pistes 0-1) | Rangée haute : Y H (pistes 2-3)
+LANE_KEYS_DISPLAY = ['R', 'T', 'Y', 'H']
+
+# Directions pour le mode difficile (piste 0)
+DIRECTIONS       = ['up', 'down', 'left', 'right']
+DIRECTION_ARROWS = {'up': '↑', 'down': '↓', 'left': '←', 'right': '→'}
+
+# Fenêtres de jugement en secondes
+PERFECT_WINDOW = 0.07   # ±70 ms → PERFECT
+GOOD_WINDOW    = 0.13   # ±150 ms → GOOD
+POOR_WINDOW    = 0.20   # ±150 ms → GOOD
+
+# Points de base par jugement (multipliés ensuite par le combo)
+JUDGMENT_POINTS = {
+    'perfect': 100,
+    'good':     50,
+    'poor':     15,
+    'miss':      0,
+}
+
+# Vitesse de chute des notes (pixels par seconde)
+FALL_SPEED = 420
+
+# Hauteur de la zone de frappe (pixels depuis le haut de l'écran)
+HIT_Y = 870
+
+# Hauteur visuelle d'une note (pixels)
+NOTE_HEIGHT = 22
+
+
+class Note:
+    """
+    Représente une note tombante dans une piste.
+
+    Attributs:
+        lane (int): Indice de la piste (0-4).
+        time (float): Instant exact (en secondes) où la note doit être frappée.
+        hit (bool): True si la note a été frappée.
+        missed (bool): True si la note a été ratée.
+        judgment (str | None): Jugement attribué ('perfect', 'good', 'miss').
+    """
+
+    def __init__(self, lane: int, time: float):
+        self.lane      = lane
+        self.time      = time
+        self.hit       = False
+        self.missed    = False
+        self.judgment  = None
+        self.direction = None   # 'up'/'down'/'left'/'right' — mode difficile piste 0
+        # État indépendant pour le joueur 2
+        self.hit_p2    = False
+        self.missed_p2 = False
+
+    # ------------------------------------------------------------------
+    # Position
+    # ------------------------------------------------------------------
+
+    def get_y(self, current_time: float) -> int:
+        """
+        Calcule la position Y de la note en fonction du temps courant.
+
+        Args:
+            current_time: Temps actuel en secondes depuis le début de la musique.
+
+        Returns:
+            Position Y en pixels (peut être négative ou > hauteur d'écran).
+        """
+        return int(HIT_Y - (self.time - current_time) * FALL_SPEED)
+
+    # ------------------------------------------------------------------
+    # Logique de frappe
+    # ------------------------------------------------------------------
+
+    def try_hit(self, current_time: float) -> str | None:
+        """
+        Tente de frapper la note au temps donné.
+
+        Args:
+            current_time: Temps actuel en secondes.
+
+        Returns:
+            Le jugement obtenu ('perfect' ou 'good'), ou None si hors fenêtre.
+        """
+        if self.hit or self.missed:
+            return None
+
+        diff = abs(current_time - self.time)
+
+        if diff <= PERFECT_WINDOW:
+            self.hit = True
+            self.judgment = 'perfect'
+            return 'perfect'
+
+        if diff <= GOOD_WINDOW:
+            self.hit = True
+            self.judgment = 'good'
+            return 'good'
+        
+        if diff <= POOR_WINDOW:
+            self.hit = True
+            self.judgment = 'poor'
+            return 'poor'
+
+        return None
+
+    def check_missed(self, current_time: float) -> bool:
+        """
+        Vérifie si la note est passée sans être frappée.
+
+        Args:
+            current_time: Temps actuel en secondes.
+
+        Returns:
+            True si la note vient d'être marquée comme ratée.
+        """
+        if not self.hit and not self.missed:
+            if current_time > self.time + POOR_WINDOW:
+                self.missed = True
+                self.judgment = 'miss'
+                return True
+        return False
+
+    def is_active(self) -> bool:
+        """Retourne True si la note n'a pas encore été traitée (J1)."""
+        return not self.hit and not self.missed
+
+    # ------------------------------------------------------------------
+    # Joueur 2
+    # ------------------------------------------------------------------
+
+    def try_hit_p2(self, current_time: float) -> str | None:
+        """Même logique que try_hit mais pour le joueur 2."""
+        if self.hit_p2 or self.missed_p2:
+            return None
+        diff = abs(current_time - self.time)
+        if diff <= PERFECT_WINDOW:
+            self.hit_p2 = True
+            return 'perfect'
+        if diff <= GOOD_WINDOW:
+            self.hit_p2 = True
+            return 'good'
+        if diff <= POOR_WINDOW:
+            self.hit_p2 = True
+            return 'poor'
+        return None
+
+    def check_missed_p2(self, current_time: float) -> bool:
+        """Même logique que check_missed mais pour le joueur 2."""
+        if not self.hit_p2 and not self.missed_p2:
+            if current_time > self.time + POOR_WINDOW:
+                self.missed_p2 = True
+                return True
+        return False
+
+    def is_active_p2(self) -> bool:
+        """Retourne True si la note n'a pas encore été traitée par J2."""
+        return not self.hit_p2 and not self.missed_p2

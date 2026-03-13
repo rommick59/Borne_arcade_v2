@@ -1,0 +1,103 @@
+{
+  "ecran": {
+    "largeur": 1280,
+    "hauteur": 1024,
+    "plein_ecran": true
+  },
+  "performance": {
+    "fps": 60
+  },
+  "match": {
+    "duree_max_manche": 90.0,
+    "victoires_pour_gagner": 2,
+    "compte_a_rebours": 3.0,
+    "duree_ecran_resultat": 2.0,
+    "duree_ecran_fin": 8.0
+  },
+  "ux": {
+    "delai_attract": 30.0
+  },
+  "menu_titre": {
+    "vitesse_animation": 1.8,
+    "amplitude_oscillation": 22.0,
+    "nombre_lignes_grille": 16,
+    "epaisseur_lignes_grille": 2,
+    "opacite_voile": 126,
+    "taille_police_titre": 102,
+    "taille_police_sous_titre": 34,
+    "taille_police_info": 24
+  },
+  "physique": {
+    "rayon_capsule": 28.0,
+    "distance_depart": 220.0,
+    "acceleration": 900.0,
+    "friction_base": 1.6,
+    "friction_frein": 5.5,
+    "vitesse_max": 540.0,
+    "coefficient_rebond_collision": 0.65
+  },
+  "cooldowns": {
+    "dash": 1.2,
+    "bump": 0.8,
+    "bouclier": 2.4,
+    "taunt": 1.0
+  },
+  "gameplay": {
+    "impulsion_dash": 380.0,
+    "impulsion_bump": 290.0,
+    "rayon_bump": 52.0,
+    "duree_bouclier": 0.5,
+    "reduction_knockback_bouclier": 0.25,
+    "delai_sortie_arene": 0.2
+  },
+  "ultime": {
+    "gain_par_seconde": 0.065,
+    "gain_par_impact": 0.16,
+    "rayon": 170.0,
+    "impulsion": 510.0
+  },
+  "arene": {
+    "rayon_depart": 360.0,
+    "rayon_min": 135.0,
+    "vitesse_retrecissement": 4.0,
+    "multiplicateur_sudden_death": 3.5,
+    "largeur_zone_danger": 30.0
+  },
+  "effets_arene": {
+    "vitesse_oscillation": 4.6,
+    "vitesse_rotation_lignes": 1.4,
+    "intensite_glow_base": 0.48,
+    "intensite_glow_impact": 0.8,
+    "opacite_lignes_base": 0.45,
+    "opacite_lignes_impact": 0.4,
+    "nombre_lignes_electriques": 18,
+    "longueur_lignes_min": 8.0,
+    "longueur_lignes_max": 24.0,
+    "amplitude_jitter_lignes": 6.0,
+    "decroissance_energie_impact": 1.2,
+    "gain_impact_dash": 0.1,
+    "gain_impact_bump": 0.18,
+    "gain_impact_ultime": 0.28
+  },
+  "style": {
+    "fenetre_combo": 2.4,
+    "bonus_combo_par_niveau": 4,
+    "points_impact": 16,
+    "points_esquive": 20,
+    "points_sauvetage": 24,
+    "distance_esquive": 70.0,
+    "cooldown_esquive": 1.0,
+    "marge_sauvetage": 20.0,
+    "duree_affichage_action": 1.1
+  },
+  "couleurs": {
+    "fond": [10, 8, 24],
+    "arene_interieur": [20, 20, 35],
+    "arene_bord": [0, 255, 255],
+    "arene_danger": [255, 80, 80],
+    "joueur_1": [0, 180, 255],
+    "joueur_2": [255, 80, 210],
+    "bouclier": [255, 255, 120],
+    "ui": [235, 235, 245]
+  }
+}
