@@ -23,39 +23,18 @@ detect_arch() {
 
 install_java() {
     print_section "VÉRIFICATION JAVA"
+
     if command -v java >/dev/null 2>&1; then
         CURRENT_JAVA=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
         echo "Java déjà installé : version $CURRENT_JAVA"
-        # Installer Maven/OpenJFX si manquants
-        MISSING_PACKAGES=()
-        if ! command -v mvn >/dev/null 2>&1; then
-            MISSING_PACKAGES+=(maven)
-        fi
-        if ! dpkg -s openjfx >/dev/null 2>&1; then
-            MISSING_PACKAGES+=(openjfx)
-        fi
-        if [ ${#MISSING_PACKAGES[@]} -gt 0 ]; then
-            echo "Paquets manquants: ${MISSING_PACKAGES[*]}. Tentative d'installation via apt..."
-            sudo apt update || true
-            sudo apt install -y "${MISSING_PACKAGES[@]}" || echo "Échec lors de l'installation de ${MISSING_PACKAGES[*]} (ignorer si non nécessaire)"
-        fi
     else
-        echo "Java non trouvé. Installation via apt..."
-        sudo apt update || true
-        sudo dpkg --configure -a || true
+        echo "Java non trouvé. Installation..."
+        sudo apt update
+        sudo dpkg --configure -a
         # Nettoyage du cache temporaire avant installation pour éviter les problèmes d'espace
         sudo rm -rf /tmp/* || true
-        sudo apt install -y openjdk-17-jdk maven openjfx || {
-            echo "Échec de l'installation automatique de Java/Maven/OpenJFX. Essayez manuellement." >&2
-            return 1
-        }
+        sudo apt install -y default-jdk
         echo "Java installé : $(java -version 2>&1 | awk -F '"' '/version/ {print $2}')"
-        if command -v mvn >/dev/null 2>&1; then
-            echo "Maven installé : $(mvn -v | head -n1)"
-        fi
-        if dpkg -s openjfx >/dev/null 2>&1; then
-            echo "OpenJFX installé"
-        fi
     fi
 }
 
@@ -332,13 +311,6 @@ install_mg2d() {
 # MAIN
 # ==============================
 
-## Allow running only Java installation with --install-java-only
-if [ "$1" = "--install-java-only" ]; then
-    detect_arch
-    install_java
-    exit 0
-fi
-
 main() {
     print_section "VÉRIFICATION DES DÉPENDANCES"
 
@@ -402,16 +374,6 @@ print_summary() {
         echo "Python3.12 : non installé"
     fi
     echo "Python3  : $(python3 --version 2>/dev/null || echo 'non installé')"
-    if command -v mvn >/dev/null 2>&1; then
-        echo "Maven   : $(mvn -v | head -n1)"
-    else
-        echo "Maven   : non installé"
-    fi
-    if dpkg -s openjfx >/dev/null 2>&1; then
-        echo "OpenJFX : installé"
-    else
-        echo "OpenJFX : non installé"
-    fi
     echo "Lua     : $(lua -v 2>&1 | awk '{print $2}')"
     if command -v love >/dev/null 2>&1; then
         echo "Love2D  : $(love --version 2>&1 | head -n 1)"
