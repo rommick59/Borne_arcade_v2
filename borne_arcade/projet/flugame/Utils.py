@@ -7,8 +7,22 @@ GRID_HEIGHT = 20
 WIDTH = GRID_WIDTH * TILE_SIZE
 HEIGHT = GRID_HEIGHT * TILE_SIZE
 
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-clock = pygame.time.Clock()
+# Laisser l'initialisation de l'affichage à l'appelant (main.py).
+# `screen` et `clock` seront initialisés via `init_display()`.
+screen = None
+clock = None
+
+
+def init_display(width, height, flags=0):
+    """Initialise `screen` et `clock` avec la résolution logique fournie.
+
+    Appeler après `pygame.init()` depuis le module principal. Cela permet
+    d'activer le fullscreen/scaling depuis le jeu principal sans créer
+    l'écran lors de l'import de Utils.
+    """
+    global screen, clock
+    screen = pygame.display.set_mode((width, height), flags)
+    clock = pygame.time.Clock()
 
 #########
 # création de la map 

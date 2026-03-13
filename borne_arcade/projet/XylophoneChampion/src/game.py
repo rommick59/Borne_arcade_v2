@@ -200,13 +200,30 @@ class GameScene:
             Dict d'action ({'action': 'menu'}) ou None.
         """
         if event.type == pygame.KEYDOWN:
+            # Résolution des touches remappées sur la borne: privilégier
+            # event.unicode quand disponible pour retrouver le keycode
+            keycode = event.key
+            uni = getattr(event, 'unicode', '')
+            if uni:
+                try:
+                    keycode = pygame.key.key_code(uni)
+                except Exception:
+                    pass
+
+            # Debug non-bloquant
+            try:
+                with open("xylophone_game_keydebug.log", "a", encoding="utf-8") as dbg:
+                    dbg.write(f"game.event.key={event.key} unicode={uni!r} resolved={keycode}\n")
+            except Exception:
+                pass
+
             # Retour menu
-            if event.key == KEY_MENU:
+            if keycode == KEY_MENU:
                 pygame.mixer.music.stop()
                 return {'action': 'menu'}
 
             # Pause / reprise
-            if event.key == KEY_PAUSE:
+            if keycode == KEY_PAUSE:
                 if self._state == 'playing':
                     self._pause()
                 elif self._state == 'paused':
@@ -215,65 +232,74 @@ class GameScene:
             # Frappe de piste — Joueur 1
             if self._state == 'playing':
                 if self._difficulty == 'hard':
-                    if event.key in _P1_ARROW_KEYS:
+                    if keycode in _P1_ARROW_KEYS:
                         self._key_pressed[0] = True
                         self._key_flash[0]   = 12
-                        self._press_lane_arrow(_P1_ARROW_KEYS[event.key], player=1)
+                        self._press_lane_arrow(_P1_ARROW_KEYS[keycode], player=1)
                     else:
                         for i, key in enumerate(_P1_HARD_LANE_KEYS):
-                            if event.key == key:
+                            if keycode == key:
                                 self._press_lane(i + 1, player=1)
                 else:
                     for i, key in enumerate(_P1_LANE_KEYS):
-                        if event.key == key:
+                        if keycode == key:
                             self._press_lane(i, player=1)
 
             # Frappe de piste — Joueur 2
             if self._state == 'playing' and self._players == 2:
                 if self._difficulty == 'hard':
-                    if event.key in _P2_ARROW_KEYS:
+                    if keycode in _P2_ARROW_KEYS:
                         self._key_pressed_p2[0] = True
                         self._key_flash_p2[0]   = 12
-                        self._press_lane_arrow(_P2_ARROW_KEYS[event.key], player=2)
+                        self._press_lane_arrow(_P2_ARROW_KEYS[keycode], player=2)
                     else:
                         for i, key in enumerate(_P2_HARD_LANE_KEYS):
-                            if event.key == key:
+                            if keycode == key:
                                 self._press_lane(i + 1, player=2)
                 else:
                     for i, key in enumerate(_P2_LANE_KEYS):
-                        if event.key == key:
+                        if keycode == key:
                             self._press_lane(i, player=2)
 
             # Écran de résultat → menu
-            if self._state == 'result' and event.key == KEY_ACCEPT:
+            if self._state == 'result' and keycode == KEY_ACCEPT:
                 return {'action': 'menu'}
 
         if event.type == pygame.KEYUP:
+            # Résolution similaire pour KEYUP
+            keycode = event.key
+            uni = getattr(event, 'unicode', '')
+            if uni:
+                try:
+                    keycode = pygame.key.key_code(uni)
+                except Exception:
+                    pass
+
             # Joueur 1
             if self._difficulty == 'hard':
-                if event.key in _P1_ARROW_KEYS:
+                if keycode in _P1_ARROW_KEYS:
                     self._key_pressed[0] = False
                 else:
                     for i, key in enumerate(_P1_HARD_LANE_KEYS):
-                        if event.key == key:
+                        if keycode == key:
                             self._key_pressed[i + 1] = False
             else:
                 for i, key in enumerate(_P1_LANE_KEYS):
-                    if event.key == key:
+                    if keycode == key:
                         self._key_pressed[i] = False
 
             # Joueur 2
             if self._players == 2:
                 if self._difficulty == 'hard':
-                    if event.key in _P2_ARROW_KEYS:
+                    if keycode in _P2_ARROW_KEYS:
                         self._key_pressed_p2[0] = False
                     else:
                         for i, key in enumerate(_P2_HARD_LANE_KEYS):
-                            if event.key == key:
+                            if keycode == key:
                                 self._key_pressed_p2[i + 1] = False
                 else:
                     for i, key in enumerate(_P2_LANE_KEYS):
-                        if event.key == key:
+                        if keycode == key:
                             self._key_pressed_p2[i] = False
 
         return None

@@ -37,7 +37,7 @@ RULE_LINES = (
     "- Gauche / Droite (ou Q / D): deplacement.",
     "- F (ou Entree): valider et tirer en partie.",
     "- T: pause pendant la partie.",
-    "- Y / 4 / Echap: retour menu.",
+    "- R / 4 / Echap: retour menu.",
 )
 
 
@@ -80,7 +80,7 @@ class DoodleJumpeApp:
         pygame.draw.line(self.hud_surface, CARD_BORDER, (0, 90), (SCREEN_W, 90), 2)
         self.hud_tip_surface = self.render_cached(
             self.font_small,
-            "Gauche/Droite ou Q/D: deplacer   F: tirer   T: pause   Y/4: menu",
+            "Gauche/Droite ou Q/D: deplacer   F: tirer   T: pause   R/4: menu",
             TEXT_DIM,
         )
         self.hud_tip_pos = (SCREEN_W // 2 - self.hud_tip_surface.get_width() // 2, SCREEN_H - 34)

@@ -96,11 +96,27 @@ class MenuScene:
         if event.type != pygame.KEYDOWN:
             return None
 
+        # Résolution des touches remappées sur la borne: privilégier
+        # event.unicode quand disponible pour retrouver le keycode
+        key = event.key
+        uni = getattr(event, 'unicode', '')
+        if uni:
+            try:
+                key = pygame.key.key_code(uni)
+            except Exception:
+                pass
+        # Debug non-bloquant
+        try:
+            with open("xylophone_menu_keydebug.log", "a", encoding="utf-8") as dbg:
+                dbg.write(f"menu.event.key={event.key} unicode={uni!r} resolved={key}\n")
+        except Exception:
+            pass
+
         # ── Sélection du nombre de joueurs ──
         if self._sub_state == 'players':
-            if event.key in (pygame.K_UP, pygame.K_DOWN):
+            if key in (pygame.K_UP, pygame.K_DOWN):
                 self._players_sel = 1 - self._players_sel
-            elif event.key == const.KEY_ACCEPT:
+            elif key == const.KEY_ACCEPT:
                 difficulty = 'hard' if self._difficulty_sel == 1 else 'normal'
                 players    = 2 if self._players_sel == 1 else 1
                 return {
@@ -109,37 +125,36 @@ class MenuScene:
                     'difficulty': difficulty,
                     'players':    players,
                 }
-            elif event.key == const.KEY_REFUSE:
+            elif key == const.KEY_REFUSE:
                 self._sub_state = 'difficulty'
             return None
 
         # ── Sélection de la difficulté ──
         if self._sub_state == 'difficulty':
-            if event.key in (pygame.K_UP, pygame.K_DOWN):
+            if key in (pygame.K_UP, pygame.K_DOWN):
                 self._difficulty_sel = 1 - self._difficulty_sel
-            elif event.key == const.KEY_ACCEPT:
+            elif key == const.KEY_ACCEPT:
                 self._players_sel = 0
                 self._sub_state   = 'players'
-            elif event.key == const.KEY_REFUSE:
+            elif key == const.KEY_REFUSE:
                 self._sub_state = 'music'
             return None
 
         # ── Sélection de la musique ──
-        if event.key == pygame.K_UP:
+        if key == pygame.K_UP:
             self._selected = max(0, self._selected - 1)
             self._update_scroll()
 
-        elif event.key == pygame.K_DOWN:
+        elif key == pygame.K_DOWN:
             self._selected = min(len(self._music_files) - 1, self._selected + 1)
             self._update_scroll()
 
-        elif event.key == const.KEY_ACCEPT:
+        elif key == const.KEY_ACCEPT:
             if self._music_files:
                 self._pending_path   = self._music_files[self._selected]['path']
                 self._difficulty_sel = 0
                 self._sub_state      = 'difficulty'
-
-        elif event.key == const.KEY_REFUSE:
+        elif key == const.KEY_REFUSE:
             pygame.quit()
             sys.exit()
 

@@ -1,23 +1,25 @@
+import os
+import sys
 import pygame
 import random
 from Player import Player
 from Enemy import Enemy
 from Bullet import Bullet
-from Utils import *
+import Utils
 
 pygame.init()
 
+# Bindings et état
 player = Player()
-
 bullets = []
 enemies = []
 score = 0
 
 spawn_locations = [ # position des spawns possible pour les enemis a la moitié du terrain au 4 points cardinaux du terrain
-    (0,(GRID_WIDTH//2)*TILE_SIZE),
-    ((GRID_HEIGHT//2)*TILE_SIZE,0),
-    (GRID_HEIGHT*TILE_SIZE,(GRID_WIDTH//2)*TILE_SIZE),
-    ((GRID_HEIGHT//2)*TILE_SIZE,GRID_WIDTH*TILE_SIZE),
+    (0, (Utils.GRID_WIDTH // 2) * Utils.TILE_SIZE),
+    ((Utils.GRID_HEIGHT // 2) * Utils.TILE_SIZE, 0),
+    (Utils.GRID_HEIGHT * Utils.TILE_SIZE, (Utils.GRID_WIDTH // 2) * Utils.TILE_SIZE),
+    ((Utils.GRID_HEIGHT // 2) * Utils.TILE_SIZE, Utils.GRID_WIDTH * Utils.TILE_SIZE),
 ]
 
 def spawn_enemy():
@@ -69,6 +71,25 @@ def reset_game():
 game_state = "PLAYING"   # PLAYING / GAME_OVER
 font = pygame.font.Font(None, 48)
 small_font = pygame.font.Font(None, 36)
+# Initialisation de l'affichage: fullscreen (scaled) si demandé
+fullscreen = os.getenv("ARCADE_FULLSCREEN", "1") == "1" or any(a in ("--fullscreen", "-f") for a in sys.argv[1:])
+flags = pygame.FULLSCREEN if fullscreen else 0
+if flags & pygame.FULLSCREEN and hasattr(pygame, 'SCALED'):
+    flags |= pygame.SCALED
+
+# Utiliser la résolution logique définie dans Utils (TILE_SIZE * GRID_WIDTH/HEIGHT)
+Utils.init_display(Utils.WIDTH, Utils.HEIGHT, flags)
+
+# Liaison locale des variables utilisées par les fonctions du module
+WIDTH = Utils.WIDTH
+HEIGHT = Utils.HEIGHT
+TILE_SIZE = Utils.TILE_SIZE
+GRID_WIDTH = Utils.GRID_WIDTH
+GRID_HEIGHT = Utils.GRID_HEIGHT
+grid = Utils.grid
+screen = Utils.screen
+clock = Utils.clock
+
 running = True
 
 while running:
@@ -80,18 +101,33 @@ while running:
             running = False
 
         if event.type == pygame.KEYDOWN:
+            # Résolution des touches remappées sur la borne: privilégier
+            # event.unicode quand disponible pour retrouver le keycode
+            keycode = event.key
+            uni = getattr(event, 'unicode', '')
+            if uni:
+                try:
+                    keycode = pygame.key.key_code(uni)
+                except Exception:
+                    pass
+
+            # Debug log non-bloquant
+            try:
+                with open("flugame_keydebug.log", "a", encoding="utf-8") as dbg:
+                    dbg.write(f"event.key={event.key} unicode={uni!r} resolved={keycode}\n")
+            except Exception:
+                pass
 
             if game_state == "PLAYING":
-                if event.key == pygame.K_f:
+                if keycode == pygame.K_f:
                     player.shoot(bullets)
-
-                if event.key == pygame.K_g:
+                if keycode == pygame.K_g:
                     player.radial_shot(bullets)
 
             elif game_state == "GAME_OVER":
-                if event.key == pygame.K_f:
+                if keycode == pygame.K_f:
                     reset_game()
-                if event.key == pygame.K_g:
+                if keycode == pygame.K_g:
                     running = False
 
     if game_state == "PLAYING":
