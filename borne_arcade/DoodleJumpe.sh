@@ -34,7 +34,7 @@ fi
 
 PYTHON_BIN="python3.12"
 if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
-  PYTHON_BIN="python3.12"
+  PYTHON_BIN="python3"
 fi
 
 if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
