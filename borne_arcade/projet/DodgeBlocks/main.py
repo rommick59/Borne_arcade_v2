@@ -5,6 +5,8 @@ import time
 from pathlib import Path
 
 import pygame
+import os
+import sys
 
 # =============================
 # Configuration generale
@@ -13,6 +15,13 @@ WIDTH, HEIGHT = 800, 600
 FPS = 60
 
 FORCE_FULLSCREEN = False
+
+# Permettre le plein écran via la variable d'environnement
+# `DODGEBLOCKS_FULLSCREEN=1` ou via l'argument `--fullscreen` ou `-f`.
+if os.getenv("DODGEBLOCKS_FULLSCREEN", "").lower() in ("1", "true", "yes"):
+    FORCE_FULLSCREEN = True
+elif any(arg in ("--fullscreen", "-f") for arg in sys.argv[1:]):
+    FORCE_FULLSCREEN = True
 
 PLAYER_W, PLAYER_H = 60, 22
 PLAYER_SPEED = 430
@@ -188,7 +197,8 @@ class Input:
         if keys[pygame.K_ESCAPE]:
             self.quit_requested = True
 
-        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+        # Remappage clavier: utiliser 'q' pour aller à gauche (AZERTY)
+        if keys[pygame.K_LEFT] or keys[pygame.K_q]:
             self.move_dir -= 1
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             self.move_dir += 1
@@ -210,7 +220,8 @@ class Input:
                 self.quit_requested = True
 
             elif event.type == pygame.KEYDOWN:
-                if event.key in (pygame.K_RETURN, pygame.K_SPACE, pygame.K_a):
+                # Bouton d'action: Enter / Space / 'e' (pour restart/valider)
+                if event.key in (pygame.K_RETURN, pygame.K_SPACE, pygame.K_e):
                     self.a_pressed = True
                 elif event.key == pygame.K_LEFT:
                     self.left_pressed = True
@@ -264,8 +275,15 @@ def stop_music():
 def main():
     pygame.init()
     pygame.display.set_caption("DodgeBlocks")
-
     flags = pygame.FULLSCREEN if FORCE_FULLSCREEN else 0
+
+    # Si on demande le plein écran, récupérer la résolution actuelle de la borne
+    # et adapter les constantes globales WIDTH/HEIGHT pour que tout le jeu s'aligne.
+    global WIDTH, HEIGHT
+    if flags & pygame.FULLSCREEN:
+        info = pygame.display.Info()
+        WIDTH, HEIGHT = info.current_w, info.current_h
+
     screen = pygame.display.set_mode((WIDTH, HEIGHT), flags)
     clock = pygame.time.Clock()
 
@@ -382,7 +400,7 @@ def main():
             draw_center_text(screen, font_big, "DODGEBLOCKS", HEIGHT // 2 - 130, selected_color)
             draw_center_text(screen, font_med, "Left / Right: change color", HEIGHT // 2 - 40, WHITE)
             draw_center_text(screen, font_med, f"Color: {selected_name}", HEIGHT // 2 + 0, selected_color)
-            draw_center_text(screen, font_med, "Press A / Space / Enter", HEIGHT // 2 + 55, WHITE)
+            draw_center_text(screen, font_med, "Press E / Space / Enter", HEIGHT // 2 + 55, WHITE)
             draw_center_text(screen, font_small, f"Best saved: {best_score:05.1f}s", HEIGHT // 2 + 95, WHITE)
             draw_center_text(screen, font_small, "ESC to quit", HEIGHT // 2 + 125, GRAY)
 
@@ -406,7 +424,7 @@ def main():
             draw_center_text(screen, font_med, f"Reached level: {level}", HEIGHT // 2 + 40, WHITE)
             draw_center_text(screen, font_med, f"Color: {selected_name}", HEIGHT // 2 + 75, selected_color)
             draw_center_text(screen, font_small, "Left / Right: change color", HEIGHT // 2 + 112, GRAY)
-            draw_center_text(screen, font_small, "Press A / Space / Enter to restart", HEIGHT // 2 + 138, GRAY)
+            draw_center_text(screen, font_small, "Press E / Space / Enter to restart", HEIGHT // 2 + 138, GRAY)
             draw_center_text(screen, font_small, "ESC to quit", HEIGHT // 2 + 164, GRAY)
 
         pygame.display.flip()

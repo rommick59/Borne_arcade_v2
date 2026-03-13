@@ -182,9 +182,26 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
-                if event.key in (pygame.K_ESCAPE, pygame.K_q):
+                # Résolution des touches remappées sur la borne: privilégier
+                # event.unicode quand disponible pour retrouver le keycode
+                keycode = event.key
+                uni = getattr(event, 'unicode', '')
+                if uni:
+                    try:
+                        keycode = pygame.key.key_code(uni)
+                    except Exception:
+                        pass
+
+                # Debug: log les événements de touches non-bloquants
+                try:
+                    with open("nebularun_keydebug.log", "a", encoding="utf-8") as dbg:
+                        dbg.write(f"event.key={event.key} unicode={uni!r} resolved={keycode}\n")
+                except Exception:
+                    pass
+
+                if keycode in (pygame.K_ESCAPE, pygame.K_q):
                     running = False
-                if not state["alive"] and event.key == pygame.K_r:
+                if not state["alive"] and keycode == pygame.K_r:
                     state = reset_state(WIDTH, HEIGHT)
             elif event.type == pygame.USEREVENT + 1 and state["alive"]:
                 state["asteroids"].append(spawn_asteroid(WIDTH))

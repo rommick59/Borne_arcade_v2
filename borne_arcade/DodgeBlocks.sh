@@ -2,4 +2,4 @@
 set -e
 
 cd "$(dirname "$0")/projet/DodgeBlocks"
-python3.12 main.py
+python3.12 main.py --fullscreen
