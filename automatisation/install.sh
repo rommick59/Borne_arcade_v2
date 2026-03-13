@@ -27,34 +27,26 @@ install_java() {
     if command -v java >/dev/null 2>&1; then
         CURRENT_JAVA=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
         echo "Java déjà installé : version $CURRENT_JAVA"
-        # Si Maven ou OpenJFX absent, les installer car certains jeux Java en ont besoin
+        # Si Maven ou OpenJFX absent, on NE les installe PAS automatiquement
+        # (installation automatique désactivée pour éviter modifications système imprévues)
         if ! command -v mvn >/dev/null 2>&1 || ! dpkg -s openjfx >/dev/null 2>&1; then
-            echo "Maven/OpenJFX manquant. Installation des paquets..."
-            sudo apt update || true
-            sudo apt install -y maven openjfx || true
+            echo "Maven/OpenJFX manquant. Installation automatique désactivée — installez manuellement si nécessaire."
             if command -v mvn >/dev/null 2>&1; then
-                echo "Maven installé : $(mvn -v | head -n1)"
+                echo "Maven détecté : $(mvn -v | head -n1)"
             else
-                echo "Échec de l'installation de Maven (ignorer si non nécessaire)"
+                echo "Maven non installé"
             fi
             if dpkg -s openjfx >/dev/null 2>&1; then
                 echo "OpenJFX installé"
             else
-                echo "Échec de l'installation d'OpenJFX (ignorer si non nécessaire)"
+                echo "OpenJFX non installé"
             fi
         fi
     else
-        echo "Java non trouvé. Installation..."
-        sudo apt update
-        sudo dpkg --configure -a
-        # Nettoyage du cache temporaire avant installation pour éviter les problèmes d'espace
-        sudo rm -rf /tmp/* || true
-        # Installer OpenJDK 17, Maven et OpenJFX (nécessaire pour certains jeux Java)
-        sudo apt install -y openjdk-17-jdk maven openjfx
-        echo "Java installé : $(java -version 2>&1 | awk -F '"' '/version/ {print $2}')"
-        if command -v mvn >/dev/null 2>&1; then
-            echo "Maven installé : $(mvn -v | head -n1)"
-        fi
+        echo "Java non trouvé. Installation automatique d'OpenJDK/Maven/OpenJFX désactivée."
+        echo "Si vous avez besoin de Java pour certains jeux, installez manuellement les paquets suivants : openjdk-17-jdk, maven, openjfx"
+        echo "Exemple (manuel) : sudo apt update && sudo apt install -y openjdk-17-jdk maven openjfx"
+        # Ne pas tenter l'installation automatique ici — laisser l'administrateur/user décider
     fi
 }
 

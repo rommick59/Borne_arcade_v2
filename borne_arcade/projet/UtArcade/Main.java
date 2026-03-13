@@ -69,7 +69,7 @@ public class Main{
         Cercle coeur_haut2 = new Cercle(Couleur.ROUGE, new Point(416,351), 5, true);
 
         Texte menu1 = new Texte(new Texte(Couleur.BLANC, "Utilisez les flèches directionnelles pour \n esquiver les projectiles", new Font("Arial", Font.TYPE1_FONT, 25), new Point(400,550)));
-        Texte menu2 = new Texte(new Texte(Couleur.BLANC, "Appuyez sur A pour commencer", new Font("Arial", Font.TYPE1_FONT, 30), new Point(400,500)));
+        Texte menu2 = new Texte(new Texte(Couleur.BLANC, "Appuyez sur R pour commencer", new Font("Arial", Font.TYPE1_FONT, 30), new Point(400,500)));
 
 
         Texte infos1 = new Texte(Couleur.VERT, (int) points + "pts", new Font("Arial", Font.TYPE1_FONT, 25), new Point(50,700));
@@ -111,7 +111,7 @@ public class Main{
 
         while (!lancer) 
         {
-            if (clavier.getBoutonJ1ATape())
+            if (clavier.getBoutonJ1XTape())
                 lancer = true;
 
             f.rafraichir();

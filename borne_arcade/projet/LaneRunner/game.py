@@ -4,6 +4,15 @@ from pathlib import Path
 
 import pygame
 
+# Key mappings compatible with the borne XKB layout (like Babble_Shot)
+KEY_LEFT = {"q", "a", "k"}
+KEY_RIGHT = {"d", "m"}
+KEY_UP = {"z", "w", "o"}
+KEY_DOWN = {"s", "l"}
+KEY_SHOOT = {"r"}
+KEY_VALIDATE = {"r"}
+KEY_MENU = {"f"}
+
 from lane_bot import Robot, TypeRobot
 from lane_player import Joueur
 from menu_state import EtatMenu
@@ -12,7 +21,7 @@ from menu_state import EtatMenu
 class Jeu:
     LARGEUR, HAUTEUR = 1280, 1024
     FPS = 30
-    FULLSCREEN = False
+    FULLSCREEN = True
 
     NB_VOIES = 5
     JOUEUR_Y = 510
@@ -45,6 +54,10 @@ class Jeu:
         pygame.init()
         pygame.joystick.init()
 
+        # adapt to the actual display size and optionally use fullscreen
+        info = pygame.display.Info()
+        self.LARGEUR = info.current_w if info.current_w > 0 else self.LARGEUR
+        self.HAUTEUR = info.current_h if info.current_h > 0 else self.HAUTEUR
         flags = pygame.HWSURFACE | pygame.DOUBLEBUF
         if self.FULLSCREEN:
             flags |= pygame.FULLSCREEN
@@ -310,20 +323,26 @@ class Jeu:
 
             if self.etat == "menu":
                 if evenement.type == pygame.KEYDOWN:
-                    if evenement.key in (pygame.K_z, pygame.K_w, pygame.K_o, pygame.K_UP):
+                    # support cabinet keys via event.unicode (like Babble_Shot)
+                    try:
+                        key_char = evenement.unicode.lower()
+                    except Exception:
+                        key_char = ""
+
+                    if key_char in KEY_UP or evenement.key in (pygame.K_z, pygame.K_w, pygame.K_o, pygame.K_UP):
                         self.menu.haut()
                         self._jouer_son("menu_move", cooldown_ms=70)
-                    elif evenement.key in (pygame.K_s, pygame.K_l, pygame.K_DOWN):
+                    elif key_char in KEY_DOWN or evenement.key in (pygame.K_s, pygame.K_l, pygame.K_DOWN):
                         self.menu.bas()
                         self._jouer_son("menu_move", cooldown_ms=70)
-                    elif evenement.key in (pygame.K_RETURN, pygame.K_SPACE, pygame.K_r):
+                    elif key_char in KEY_VALIDATE or evenement.key in (pygame.K_RETURN, pygame.K_SPACE, pygame.K_r):
                         self._jouer_son("menu_validate")
                         if self.menu.jouer_selectionne:
                             self._demarrer_jeu()
                         else:
                             pygame.quit()
                             sys.exit()
-                    elif evenement.key in (pygame.K_ESCAPE, pygame.K_f):
+                    elif key_char in KEY_MENU or evenement.key in (pygame.K_ESCAPE, pygame.K_f):
                         pygame.quit()
                         sys.exit()
 
@@ -337,21 +356,26 @@ class Jeu:
 
             elif self.etat == "saisie_nom":
                 if evenement.type == pygame.KEYDOWN:
-                    if evenement.key in (pygame.K_LEFT, pygame.K_q, pygame.K_a, pygame.K_k):
+                    try:
+                        key_char = evenement.unicode.lower()
+                    except Exception:
+                        key_char = ""
+
+                    if key_char in KEY_LEFT or evenement.key in (pygame.K_LEFT, pygame.K_q, pygame.K_a, pygame.K_k):
                         self._deplacer_selection_nom(-1)
                         self._jouer_son("menu_move", cooldown_ms=70)
-                    elif evenement.key in (pygame.K_RIGHT, pygame.K_d, pygame.K_m):
+                    elif key_char in KEY_RIGHT or evenement.key in (pygame.K_RIGHT, pygame.K_d, pygame.K_m):
                         self._deplacer_selection_nom(1)
                         self._jouer_son("menu_move", cooldown_ms=70)
-                    elif evenement.key in (pygame.K_UP, pygame.K_z, pygame.K_w, pygame.K_o):
+                    elif key_char in KEY_UP or evenement.key in (pygame.K_UP, pygame.K_z, pygame.K_w, pygame.K_o):
                         self._changer_lettre_nom(1)
                         self._jouer_son("menu_move", cooldown_ms=70)
-                    elif evenement.key in (pygame.K_DOWN, pygame.K_s, pygame.K_l):
+                    elif key_char in KEY_DOWN or evenement.key in (pygame.K_DOWN, pygame.K_s, pygame.K_l):
                         self._changer_lettre_nom(-1)
                         self._jouer_son("menu_move", cooldown_ms=70)
-                    elif evenement.key in (pygame.K_RETURN, pygame.K_SPACE, pygame.K_r):
+                    elif key_char in KEY_SHOOT or evenement.key in (pygame.K_RETURN, pygame.K_SPACE, pygame.K_r):
                         self._valider_nom()
-                    elif evenement.key in (pygame.K_ESCAPE, pygame.K_f):
+                    elif key_char in KEY_MENU or evenement.key in (pygame.K_ESCAPE, pygame.K_f):
                         self._valider_nom()
 
                 if evenement.type == pygame.JOYHATMOTION:
@@ -382,9 +406,14 @@ class Jeu:
 
             elif self.etat == "jeu":
                 if evenement.type == pygame.KEYDOWN:
-                    if evenement.key in (pygame.K_ESCAPE, pygame.K_f):
+                    try:
+                        key_char = evenement.unicode.lower()
+                    except Exception:
+                        key_char = ""
+
+                    if key_char in KEY_MENU or evenement.key in (pygame.K_ESCAPE, pygame.K_f):
                         self.etat = "menu"
-                    elif evenement.key in (pygame.K_SPACE, pygame.K_r):
+                    elif key_char in KEY_SHOOT or evenement.key in (pygame.K_SPACE, pygame.K_r):
                         self._tirer()
                 if evenement.type == pygame.JOYBUTTONDOWN and evenement.button == 0:
                     self._tirer()
